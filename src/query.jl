@@ -23,15 +23,14 @@ function stdrecordcb()
                  output = Vector{Float64}[])
   i = 0
   function stdupdate(data)
-   println("AGOT HEREB")
     push!(df, [i, data.loss, time(), [data.input...], [data.output...]])
     i = i + 1
   end
   df, stdupdate
 end
 
-function min_naive(carr = TestArrows.xy_plus_x_arr())
-  @show naive_loss, ϵid = Arrows.naive_loss(carr, 1.0)
+function min_naive(carr::Arrow, inputs...)
+  @show naive_loss, ϵid = Arrows.naive_loss(carr, inputs...)
   ϵprt = ◂(naive_loss, ϵid)
   df, update_data = stdrecordcb()
   Arrows.optimize(naive_loss, ▸(naive_loss), ϵprt, rand(2); callbacks = [update_data])
@@ -39,9 +38,9 @@ function min_naive(carr = TestArrows.xy_plus_x_arr())
 end
 
 "Minimize `arr` using to"
-function min_domainϵ(arr = TestArrows.xy_plus_x_arr(), inputs=rand(length(▸(arr, !is(θp)))))
-  outs = arr(inputs...)
-  @show dmloss, ϵid = domain_ovrl(arr)
+function min_domainϵ(arr::Arrow, outs...)
+  metadata = @NT(runname="runname")
+  dmloss, ϵid = domain_ovrl(arr)
   invarr = invert(arr)
   aprx_totalize!(invarr)
   idloss = id_loss(arr, invarr)
@@ -53,7 +52,6 @@ function min_domainϵ(arr = TestArrows.xy_plus_x_arr(), inputs=rand(length(▸(a
                    domainloss = Float64[])
     i = 0
     function domainupdate(data)
-      println("GOT HEREB")
       # compute the domain loss and id loss
       dm_error = dmloss(data.input...)[ϵid]
       id_error = idloss(data.input...)[1]
@@ -63,7 +61,7 @@ function min_domainϵ(arr = TestArrows.xy_plus_x_arr(), inputs=rand(length(▸(a
     df2, domainupdate
   end
 
-  
+
   df, stdupdate = stdrecordcb()
   # @show update_data(3)
   domaindf, domupdate = domaincallback()
@@ -76,15 +74,17 @@ function min_domainϵ(arr = TestArrows.xy_plus_x_arr(), inputs=rand(length(▸(a
 end
 
 "Scatter many points"
-function scattermany(points)
+function scattermany(points, results, newplot::Bool, markershape=:circle)
+  @show size(points)
+  @show size.(results)
   lb = 1
   local plot
   for res in results
-    scat = lb == 1 ? scatter : scatter!
+    scat = lb == 1 &&newplot ? scatter : scatter!
     ub = lb+size(res, 1)-1
     @show lb, ub
     pts = points[lb:ub, :]
-    plot = scat(pts[:,1], pts[:,2])
+    plot = scat(pts[:,1], pts[:,2], markershape=markershape)
     lb = ub + 1
   end
   plot
@@ -99,9 +99,21 @@ end
 # end
 
 function compare_pi_naive(carr::Arrow, nruns::Integer)
-  naivedata = min_naive(carr)
-  domaindata = min_domainϵ(carr)
-  naivedata, domaindata
+  x = rand(length(▸(carr, !is(θp))))
+  y = arr(y)
+  naivedata = (dfs->manyjoin(:iteration, dfs...)).([min_naive(carr) for i = 1:nruns])
+  # domaindata = min_domainϵ(carr)
+  domaindata = (dfs->manyjoin(:iteration, dfs...)).([min_domainϵ(carr) for i = 1:nruns])
+
+  concatted1 = vcat([df[:loss] for df in naivedata]...)
+  concatted2 = vcat([df[:loss] for df in domaindata]...)
+  concatted = vcat(concatted1, concatted2)
+  points = tsne(Array(concatted), (x, y)->(sum(abs.(x-y))))
+  @show size(concatted)
+  @show size(concatted1)
+  @show size(concatted2)
+  scattermany(points[1:length(concatted1), :], naivedata, true, :circle)
+  scattermany(points[length(concatted1):end, :], domaindata, false, :xcross)
 end
 
 function manyjoin(on::Symbol, dfs::DataFrame...)
@@ -109,7 +121,7 @@ function manyjoin(on::Symbol, dfs::DataFrame...)
   for df in dfs[2:end]
     @show typeof(x)
     @show typeof(df)
-    x = join(x, df, on)
+    x = join(x, df, on=on)
   end
   x
 end

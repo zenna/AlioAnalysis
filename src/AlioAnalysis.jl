@@ -7,6 +7,7 @@ using NamedTuples
 using Query
 
 include("plots/space.jl")
+include("plots/warp.jl")
 include("query.jl")
 
 end

@@ -1,15 +1,25 @@
-function init(run::DataFrame)
-  run[:loss][1]
-end
+## General ##
 
+"Initial `:loss` value from run"
+init(run::DataFrame, on::Symbol) = run[:loss][1]
+
+"Get the optimal `:loss` value from a run"
 function optimal(run::DataFrame, on::Symbol)
   df = @from i in run begin
-      @orderby ascending(i.loss)
-      @select i
-      @collect DataFrame
+       @orderby ascending(i.loss)
+       @select i
+       @collect DataFrame
   end
-  df[:loss][1]
+  df[on][1]
 end
+
+"Join data from different callbacks from a run on :iteration"
+joincallbacks(dfs::Vector{DataFrame}) = manyjoin(:iteration, dfs...)
+
+"Join data from different runs"
+joinruns(f::Function, runs::Vector{DataFrame}) = [f(run, :loss) for run in runs]
+
+## Specific Tests / Plots ##
 
 function test_initialhist(nruns=100)
   carr = TestArrows.xy_plus_x_arr()
@@ -19,7 +29,7 @@ end
 
 "Overlapping Plot of histogram before and after optimization"
 function init_vs_optim(runs)
-  initdata = [init(run) for run in runs]
+  initdata = [init(run, :loss) for run in runs]
   optimaldata = [optimal(run, :loss) for run in runs]
   initdata, optimaldata
 end
@@ -35,7 +45,6 @@ function pi(carr::CompArrow, nruns::Integer, targety...)
   runs = [manyjoin(:iteration, df...) for df in dfs]
   initdata, optimaldata = init_vs_optim(runs)
 end
-
 
 function compare(carr::CompArrow, nruns::Integer)
   @show rand_f_in = rand(length(▸(carr)))
@@ -55,7 +64,3 @@ function compare(carr::CompArrow, nruns::Integer)
              ylabel="Count")
   title!("Comparing initial and optimized losses")
 end
-
-# What's troublesome right now ?
-# Why hist! makes a million hist
-# How to reset the plot

@@ -1,34 +1,3 @@
-using Query
-using DataFrames
-using DataArrays
-using TSne
-using Plots
-using Arrows
-using NLopt
-
-# function join(df)
-#   x = @from i in df begin
-#       @where i.age > 0
-#       @select {i.name, i.children}
-#       @collect DataFrame
-#   end
-# end
-
-"Standard callback that records"
-function stdrecordcb()
-  df = DataFrame(iteration = Int[],
-                 loss = Float64[],
-                 systime = Float64[],
-                 input = Vector{Float64}[],
-                 output = Vector{Float64}[])
-  i = 0
-  function stdupdate(data)
-    push!(df, [i, data.loss, time(), [data.input...], [data.output...]])
-    i = i + 1
-  end
-  df, stdupdate
-end
-
 function min_naive(carr::Arrow, inputs...)
   @show naive_loss, ϵid = Arrows.naive_loss(carr, inputs...)
   ϵprt = ◂(naive_loss, ϵid)
@@ -90,13 +59,31 @@ function scattermany(points, results, newplot::Bool, markershape=:circle)
   plot
 end
 
-# function ok(carr::Arrow, dist::Symbol, nruns::Integer, gendata::Function)
-#   results = [gendata(carr) for i = 1:nruns]
-#   concatted = vcat([df[dist] for df in results]...)
-#   points = tsne(Array(concatted), (x, y)->(sum(abs.(x-y))))
-#   @show size(points)
-#   @show size.(results)
-# end
+
+function get_data(arr::Arrow, nruns::Integer, doruns::Function...)
+  dfs = DataFrame[]
+  for dorun in doruns
+    # do nruns runs and
+    rundata = Vector{DataFrame}[dorun(arr) for i = 1:nruns]
+    rundata = map(joincallbacks, rundata)
+    joinruns(rundata)
+    push!(dfs, joineddfs)
+  end
+  dfs
+end
+
+function compare(arr::Arrow, nruns::Integer, funcs::Function...)
+  dfs = get_data(arr, nruns, funcs)
+  alllosses = Float64[]
+  for df in dfs
+    losses = vcat(df[:loss] for df in joineddf)
+  end
+
+  points = tsne(Array(alllosses), (x, y)->(sum(abs.(x-y))))
+end
+
+"Join data from different callbacks from a run on :iteration"
+joincallbacks(dfs::DataFrame...) = manyjoin(:iteration, dfs...)
 
 function compare_pi_naive(carr::Arrow, nruns::Integer)
   x = rand(length(▸(carr, !is(θp))))
@@ -116,12 +103,18 @@ function compare_pi_naive(carr::Arrow, nruns::Integer)
   scattermany(points[length(concatted1):end, :], domaindata, false, :xcross)
 end
 
+"Recursive join on `on` of many dataframes `dfs`"
 function manyjoin(on::Symbol, dfs::DataFrame...)
   x = first(dfs)
   for df in dfs[2:end]
-    @show typeof(x)
-    @show typeof(df)
     x = join(x, df, on=on)
   end
   x
+end
+
+"Append one or more dataframes to `df1`"
+function manyappend!(df1::DataFrame, df2::DataFrame, dfs::DataFrame...)
+  dfs = vcat(df2, [dfs...])
+  foreach(df -> append!(df1, df), dfs)
+  df1
 end

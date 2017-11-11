@@ -49,7 +49,7 @@ function scattermany(points, results, newplot::Bool, markershape=:circle)
   lb = 1
   local plot
   for res in results
-    scat = lb == 1 &&newplot ? scatter : scatter!
+    scat = lb == 1 && newplot ? scatter : scatter!
     ub = lb+size(res, 1)-1
     @show lb, ub
     pts = points[lb:ub, :]
@@ -113,7 +113,8 @@ function manyjoin(on::Symbol, dfs::DataFrame...)
 end
 
 "Append one or more dataframes to `df1`"
-function manyappend!(df1::DataFrame, df2::DataFrame, dfs::DataFrame...)
+function manyappend(df1::DataFrame, df2::DataFrame, dfs::DataFrame...)
+  df1 = deepcopy(df1)
   dfs = vcat(df2, [dfs...])
   foreach(df -> append!(df1, df), dfs)
   df1

@@ -23,11 +23,7 @@ function warp(carr::CompArrow, batch_size::Integer, template=mlp_template)
   [df]
 end
 
-"Find `UnknownArrows` within `carr`"
-function findnets(carr::CompArrow)
-  filter(tarr -> deref(tarr) isa Arrows.UnknownArrow,
-         Arrows.simpletracewalk(x->x, carr))
-end
+
 
 "Construct a loss neural network which maps inverse domains of `fwd` "
 function makeloss(invarr::Arrow, fwd::Arrow, loss; custϵ=ϵ)
@@ -46,10 +42,6 @@ function makeloss(invarr::Arrow, fwd::Arrow, loss; custϵ=ϵ)
   carr
 end
 
-"Example Error"
-struct ExError <: Arrows.Err end
-exϵ = ExError
-Arrows.superscript(::Type{ExError}) = :ᵉˣᵋ
 
 "nnet-enhanced parametric inverse of `fwd`"
 function netpi(fwd::Arrow, loss)

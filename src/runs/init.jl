@@ -11,7 +11,7 @@ function netpi(fwd::Arrow)
 end
 
 "Construct a loss neural network which maps inverse domains of `fwd` "
-function invnet(fwd::Arrow,)
+function invnet(fwd::Arrow)
   unk = UnknownArrow(Symbol(:nnet_, name(fwd)),
                             length(◂(fwd)), length(▸(fwd)))
 end
@@ -39,24 +39,26 @@ function optimizerun(carr::CompArrow, batch_size::Integer, template=mlp_template
   [df]
 end
 
-function dorun(opt)
-  fwdarr = opt.fwdarr
-  invarr = opt.invarr(fwdarr, opt.loss)
-  lossarr = makeloss(invarr, opt.loss, custϵ=exϵ)
-  optimizerun(lossarr, opt.batch_size)
+"Execution the run"
+function dorun(opt::Dict{Symbol, Any})
+  @show fwdarr = opt[:fwdarr]
+  invarr = opt[:invarr](fwdarr)
+  lossarr = makeloss(invarr, fwdarr, opt[:loss], custϵ=exϵ)
+  optimizerun(lossarr, opt[:batch_size])
 end
 
-using FileIO
+doruin(optpath::String) = dorun(loadopt(optpath))
+
 "Run to generate data for initialization comparison"
 function initrun()
   optspace = Dict(:fwdarr => [TestArrows.xy_plus_x_arr(), TestArrows.abc_arr()],
-                  :batch_size => [16, 32, 64],
+                  :batch_size => [16, 64],
                   :invarr => [netpi, invnet],
                   :loss => +,
                   :check => rand)
-  for (i, opt) in enumerate(prodsample(optspace, [:fwdarr, :batch_size], [:check], 2))
-    saveopt("/Users/zenna/example$i.opt", opt)
-    # dorun(opt)
+  for (i, opt) in enumerate(prodsample(optspace, [:fwdarr, :batch_size, :invarr], [:check], 2))
+    # saveopt("/Users/zenna/example$i.opt", opt)
+    dorun(opt)
   end
 end
 

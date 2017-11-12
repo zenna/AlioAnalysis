@@ -28,7 +28,7 @@ struct ExError <: Arrows.Err end
 exϵ = ExError
 Arrows.superscript(::Type{ExError}) = :ᵉˣᵋ
 
-"Product"
+"Enumerate product space of `toenum` sampling from `tosampale`"
 function prodsample(optspace,
                     toenum::Vector{Symbol},
                     tosample::Vector{Symbol},

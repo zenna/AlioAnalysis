@@ -24,7 +24,6 @@ function warp(carr::CompArrow, batch_size::Integer, template=mlp_template)
 end
 
 
-
 "Construct a loss neural network which maps inverse domains of `fwd` "
 function makeloss(invarr::Arrow, fwd::Arrow, loss; custϵ=ϵ)
   carr = CompArrow(Symbol(:net_loss, name(fwd)))
@@ -33,7 +32,11 @@ function makeloss(invarr::Arrow, fwd::Arrow, loss; custϵ=ϵ)
   net◃ = ◃(net, !is(ϵ))
   net▹ = ▹(net, !is(θp))
   fwd◃ = fwd(net◃...)
-  δ◃ = map(+, fwd◃, net▹)
+  # There Must be a better way
+  if fwd◃ isa SubPort
+    fwd◃ = [fwd◃]
+  end
+  @show δ◃ = [fwd◃[i] + net▹[i] for i = 1:length(fwd◃)]
   loss◃ = loss(net◃...)
   foreach(add!(idϵ) ∘ link_to_parent!, δ◃)
   foreach(add!(custϵ) ∘ link_to_parent!, [loss◃])

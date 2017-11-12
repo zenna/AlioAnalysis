@@ -8,7 +8,7 @@ using Query
 using DataArrays
 using TSne
 using NLopt
-using JLD2
+# using JLD2
 
 include("util.jl")          # Genral Utils
 include("callbacks.jl")     # Functions passed to optimizxation

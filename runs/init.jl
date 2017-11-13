@@ -62,7 +62,7 @@ function genopts()
     thisfile = "/home/zenna/repos/Alio/AlioAnalysis.jl/runs/init.jl"
     mkpath(logdir)
     saveopt(optpath, opt)
-    cmd =`sbatch -J $jobid $runpath $thisfile $optpath`
+    cmd =`sbatch -J $jobid -o $jobid.out $runpath $thisfile $optpath`
     println("Running: ", cmd)
     run(cmd)
   end

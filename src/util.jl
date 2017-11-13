@@ -40,7 +40,7 @@ function prodsample(optspace,
   for it in iter
     subdict1 = Dict(zip(keys(toenumprod), it))
     for i = 1:nsamples
-      subdict2 = Dict(k => optspace[k]() for k in keys(tosample))
+      subdict2 = Dict{Symbol, Any}(k => optspace[k]() for k in keys(tosample))
       subdict = merge(optspace, subdict1, subdict2)
       push!(dicts, subdict)
     end
@@ -89,4 +89,38 @@ function log_dir(;root=datadir(), jobid=randstring(5), group="nogroup", comment=
                  comment],
                  "_")
   joinpath(root, "runs", group, logdir)
+end
+
+function search(optspace;
+                toenum=Symbol[],
+                tosample=Symbol[],
+                nsamples=1,
+                runlocal=false,
+                runsbatch=false,
+                runnow=false,
+                dorun=stddorun)
+  for (i, opt) in enumerate(prodsample(optspace, toenum, tosample, nsamples))
+    jobid = randstring(5)
+    logdir = log_dir(jobid=jobid)
+    optpath = joinpath(logdir, "options.opt")
+    runpath = "/home/zenna/repos/Alio/AlioAnalysis.jl/src/run.sh"
+    thisfile = "/home/zenna/repos/Alio/AlioAnalysis.jl/runs/init.jl"
+    mkpath(logdir)
+    saveopt(optpath, opt)
+    println("Saving options at: ", optpath)
+    if runsbatch
+      cmd =`sbatch -J $jobid -o $jobid.out $runpath $thisfile $optpath`
+      println("Scheduling sbatch: ", cmd)
+      run(cmd)
+    end
+    if runlocal
+      cmd = `julia $thisfile $optpath`
+      println("Running: ", cmd)
+      run(cmd)
+    end
+    if runnow
+      @show opt
+      dorun(opt)
+    end
+  end
 end

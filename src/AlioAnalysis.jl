@@ -10,6 +10,16 @@ using TSne
 using NLopt
 # using JLD2
 
+export saveopt,
+       log_dir,
+       prodsample,
+       makeloss,
+       savedata,
+       genorrun,
+       dorun,
+       netpi,
+       invnet
+
 include("util.jl")          # Genral Utils
 include("callbacks.jl")     # Functions passed to optimizxation
 include("opts.jl")          # Standard options and option samplers

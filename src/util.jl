@@ -82,11 +82,11 @@ function datadir()
 end
 
 "Log directory, e.g. ~/datadir/mnist/Oct14_02-43-22_my_comp/"
-function log_dir(root=datadir(), group="nogroup", comment="")
+function log_dir(root=datadir(), jobid=randstring(5), group="nogroup", comment="")
   logdir = join([randstring(5),
-                now(),
-                gethostname(),
-                comment],
-                "_")
+                 now(),
+                 gethostname(),
+                 comment],
+                 "_")
   joinpath(root, "runs", group, logdir)
 end

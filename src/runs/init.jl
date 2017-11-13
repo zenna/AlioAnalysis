@@ -60,14 +60,23 @@ function genopts()
                   :loss => +,
                   :check => rand)
   for (i, opt) in enumerate(prodsample(optspace, [:fwdarr, :batch_size, :invarr], [:check], 2))
-    logdir = log_dir()
-    mkdir(logdir)
-    saveopt(joinpath(logdir, "options.opt"), opt)
+    jobid = randstring(5)
+    logdir = log_dir(jobid=jobid)
+    optpath = joinpath(logdir, "options.opt")
+    runpath = "/home/zenna/repos/Alio/AlioAnalysis.jl/src/run.sh"
+    thisfile = "/home/zenna/repos/Alio/AlioAnalysis.jl/src/runs/init.jl"
+    mkpath(logdir)
+    saveopt(optpath, opt)
+    cmd =`sbatch $runpath -J $jobid $thisfile $optpath`
+    run(cmd)
   end
 end
 
 function main()
   genorrun(genopts, dorun)
 end
+
+
+#
 
 main()

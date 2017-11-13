@@ -5,4 +5,4 @@
 #SBATCH --mem=8G
 #SBATCH -t 720
 source activate tf
-python "$@"
+julia "$@"

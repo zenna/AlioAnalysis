@@ -59,3 +59,34 @@ end
 function loadopt(path)
   deserialize(open(path))
 end
+
+"Generate Opts or run opts based on cmdline"
+function genorrun(genopts, dorun)
+  if length(ARGS) != 1
+    println("Wrong num arguments, should be 1 but was $(length(ARGS))")
+  elseif ARGS[1] == "search"
+    genopts()
+  else
+    opt = loadopt(ARGS[1])
+    dorun(opt)
+  end
+end
+
+"Data Dir"
+function datadir()
+  if "DATADIR" in keys(ENV)
+    ENV["DATADIR"]
+  else
+    homedir()
+  end
+end
+
+"Log directory, e.g. ~/datadir/mnist/Oct14_02-43-22_my_comp/"
+function log_dir(root=datadir(), group="nogroup", comment="")
+  logdir = join([randstring(5),
+                now(),
+                gethostname(),
+                comment],
+                "_")
+  joinpath(root, "runs", group, logdir)
+end

@@ -16,9 +16,6 @@ include("opts.jl")          # Standard options and option samplers
 include("search.jl")        # Methods
 
 # Runs
-ba = 3
-include("runs/init.jl")
-
 include("plots/space.jl")
 include("plots/warp.jl")
 include("query.jl")

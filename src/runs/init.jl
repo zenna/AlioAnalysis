@@ -4,6 +4,9 @@
 # 4. prodsample
 # 5. Command line - Pickle the options, save, and pass path to ocmmandline
 
+using Arrows
+using ArrowAnalysis
+
 "nnet-enhanced parametric inverse of `fwd`"
 function netpi(fwd::Arrow)
   invcarr = aprx_invert(fwd)
@@ -49,16 +52,22 @@ end
 
 doruin(optpath::String) = dorun(loadopt(optpath))
 
-"Run to generate data for initialization comparison"
-function initrun()
+"Generate data for initialization comparison"
+function genopts()
   optspace = Dict(:fwdarr => [TestArrows.xy_plus_x_arr(), TestArrows.abc_arr()],
                   :batch_size => [16, 64],
                   :invarr => [netpi, invnet],
                   :loss => +,
                   :check => rand)
   for (i, opt) in enumerate(prodsample(optspace, [:fwdarr, :batch_size, :invarr], [:check], 2))
-    # saveopt("/Users/zenna/example$i.opt", opt)
-    dorun(opt)
+    logdir = log_dir()
+    mkdir(logdir)
+    saveopt(joinpath(logdir, "options.opt"), opt)
   end
 end
 
+function main()
+  genorrun(genopts, dorun)
+end
+
+main()

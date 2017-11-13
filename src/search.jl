@@ -26,7 +26,7 @@ end
 
 "Execute process with options"
 function run_local_batch(file_path, options, blocking=true)
-  run_str = ["python", file_path] + make_batch_string(options)
+  run_str = ["julia", file_path] + make_batch_string(options)
   print("Subprocess call:", run_str)
   if blocking
     subprocess.call(run_str)

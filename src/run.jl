@@ -1,28 +1,34 @@
 "Construct a loss right inverse which maps inverse domains of `fwd` "
 function genloss(invarr::Arrow, fwd::Arrow, loss; custϵ=ϵ)
   carr = CompArrow(Symbol(:net_loss, name(fwd)))
-  inv = add_sub_arr!(carr, invarr)
-  foreach(link_to_parent!, ▹(inv))
-  inv◃ = ◃(inv, !is(ϵ))
-  inv▹ = ▹(inv, !is(θp))
-  fwd◃ = fwd(inv◃...)
+  finv = add_sub_arr!(carr, invarr)
+  foreach(link_to_parent!, ▹(finv))
+  finv◃ = ◃(finv, !is(ϵ))
+  finv▹ = ▹(finv, !is(θp))
+  fwd◃ = fwd(finv◃...)
   # There MUST be a better way
   if fwd◃ isa SubPort
     fwd◃ = [fwd◃]
   end
-  @show δ◃ = [fwd◃[i] + inv▹[i] for i = 1:length(fwd◃)]
-  loss◃ = loss(inv◃...)
+  @show δ◃ = [fwd◃[i] + finv▹[i] for i = 1:length(fwd◃)]
+  loss◃ = loss(finv◃...)
   foreach(add!(idϵ) ∘ link_to_parent!, δ◃)
   foreach(add!(custϵ) ∘ link_to_parent!, [loss◃])
-  foreach(link_to_parent!, ◃(inv, is(ϵ)))
+  foreach(link_to_parent!, ◃(finv, is(ϵ)))
   @assert is_wired_ok(carr)
   carr
 end
 
 "nnet-enhanced parametric inverse of `fwd`"
-function netpi(fwd::Arrow, tabv::Dict=TraceAbValues())
-  invcarr = aprx_invert(fwd, tabv)
+function netpi(fwd::Arrow, nmabv::NmAbValues = NmAbValues())
+  sprtabv = SprtAbValues(get_sub_ports(fwd, nm) => abv for (nm, abv) in nmabv)
+  invcarr = invert(fwd, inv, sprtabv)
+  @assert false
+  @show name ∘ get_ports(fwd)
+  @show invcarr ∘ get_ports(fwd)
+  # Propagate invcarr with the corresponding values from tavc
   pslarr = psl(invcarr)
+  # OK
 end
 
 "Construct a loss neural network which maps inverse domains of `fwd` "

@@ -19,4 +19,5 @@ include("search.jl")        # Methods
 include("plots/space.jl")
 include("plots/warp.jl")
 include("query.jl")
+include("run.jl")
 end

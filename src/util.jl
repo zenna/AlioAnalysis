@@ -91,17 +91,18 @@ function log_dir(;root=datadir(), jobid=randstring(5), group="nogroup", comment=
   joinpath(root, "runs", group, logdir)
 end
 
-function search(optspace;
+function train(optspace;
                 toenum=Symbol[],
                 tosample=Symbol[],
                 nsamples=1,
                 runlocal=false,
                 runsbatch=false,
                 runnow=false,
-                dorun=stddorun)
+                dorun=stddorun,
+                group="nogroup")
   for (i, opt) in enumerate(prodsample(optspace, toenum, tosample, nsamples))
     jobid = randstring(5)
-    logdir = log_dir(jobid=jobid)
+    logdir = log_dir(jobid=jobid, group=group)
     optpath = joinpath(logdir, "options.opt")
     runpath = "/home/zenna/repos/Alio/AlioAnalysis.jl/src/run.sh"
     thisfile = "/home/zenna/repos/Alio/AlioAnalysis.jl/runs/init.jl"

@@ -1,7 +1,11 @@
+plus(x::SubPort) = x
+plus(xs::SubPort...) = +(xs...)
+
 "Construct a loss right inverse which maps inverse domains of `fwd` "
-function genloss(invarr::Arrow, fwd::Arrow, loss; custϵ=ϵ)
+function genloss(invarr::Arrow, fwd::Arrow, loss)
   carr = CompArrow(Symbol(:net_loss, name(fwd)))
   finv = add_sub_arr!(carr, invarr)
+  # idϵ
   foreach(link_to_parent!, ▹(finv))
   finv◃ = ◃(finv, !is(ϵ))
   finv▹ = ▹(finv, !is(θp))
@@ -10,42 +14,57 @@ function genloss(invarr::Arrow, fwd::Arrow, loss; custϵ=ϵ)
   if fwd◃ isa SubPort
     fwd◃ = [fwd◃]
   end
-  @show δ◃ = [fwd◃[i] + finv▹[i] for i = 1:length(fwd◃)]
+
+  # Sum the losses from each output
+  δ◃s = [fwd◃[i] + finv▹[i] for i = 1:length(fwd◃)]
+  δtot◃ = plus(δ◃s...)
+  foreach(add!(idϵ) ∘ link_to_parent!, δ◃s)
+
+  # Any other loss
   loss◃ = loss(finv◃...)
-  foreach(add!(idϵ) ∘ link_to_parent!, δ◃)
-  foreach(add!(custϵ) ∘ link_to_parent!, [loss◃])
-  foreach(link_to_parent!, ◃(finv, is(ϵ)))
+  (add!(ϵ) ∘ link_to_parent!)(loss◃)
+
+  # Total loss to minimize
+  tomin◃ = loss◃ + δtot◃
+  link_to_parent!(tomin◃)
+
+  # Link every output output to parent
+  foreach(link_to_parent!, ◃(finv))
   @assert is_wired_ok(carr)
   carr
 end
 
 "nnet-enhanced parametric inverse of `fwd`"
 function netpi(fwd::Arrow, nmabv::NmAbValues = NmAbValues())
-  sprtabv = SprtAbValues(get_sub_ports(fwd, nm) => abv for (nm, abv) in nmabv)
-  invcarr = invert(fwd, inv, sprtabv)
-  @assert false
-  @show name ∘ get_ports(fwd)
-  @show invcarr ∘ get_ports(fwd)
-  # Propagate invcarr with the corresponding values from tavc
+  sprtabv = SprtAbValues(⬨(fwd, nm) => abv for (nm, abv) in nmabv)
+  invcarr = aprx_invert(fwd, inv, sprtabv)
   pslarr = psl(invcarr)
-  # OK
 end
 
 "Construct a loss neural network which maps inverse domains of `fwd` "
 function invnet(fwd::Arrow, tabv::Dict=TraceAbValues())
-  unk = UnknownArrow(Symbol(:nnet_, name(fwd)),
-                            length(◂(fwd)), length(▸(fwd)))
+  @show unk = UnknownArrow(Symbol(:invnet_, name(fwd)),
+                           [name(prt).name for prt in ◂(fwd)],
+                           [name(prt).name for prt in ▸(fwd)])
 end
 
 # Optimize here
-function optimizerun(carr::CompArrow, batch_size::Integer, template=mlp_template)
-  ϵprt = ◂(carr, is(exϵ), 1)
+function optimizerun(carr::CompArrow,
+                     ϵprt=◂(carr, is(ϵ), 1);
+                     template=mlp_template,
+                     callbacks=[],
+                     xabv::XAbValues = TraceAbValues())
   # Find the network and add `func`
+
   nnettarr = first(findnets(carr))
-  # Prorblem is that by here we've lost the shape information
-  insizes = [Size([batch_size, 1]) for i = 1:length(▸(deref(nnettarr)))]
-  outsizes = [Size([batch_size, 1]) for i = 1:length(◂(deref(nnettarr)))]
+  tabv = traceprop!(carr, xabv)
+  # @show values(tabv)
+  insizes = [tabv[tval][:size] for tval in in_trace_values(nnettarr)]
+  outsizes = [tabv[tval][:size] for tval in out_trace_values(nnettarr)]
   deref(nnettarr).func = args->mlp_template(args, insizes, outsizes)
+
+  carrinsizes = [get(tabv[tval][:size]) for tval in in_trace_values(Arrows.TraceSubArrow(carr))]
+  gens = [Sampler{Array}(()->rand(carrinsizes[i]...)) for i = 1:length(▸(carr))]
 
   # Setup callbacks
   df, std_cb = savedata()
@@ -54,7 +73,7 @@ function optimizerun(carr::CompArrow, batch_size::Integer, template=mlp_template
   # Optimize
   optimize(carr,
            ϵprt,
-           [Arrows.Sampler{Array}(()->rand(batch_size, 1)) for i = 1:length(▸(carr))],
+           gens,
            TFTarget;
            cont=data -> data.i < 400,
            callbacks=callbacks)

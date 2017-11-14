@@ -18,7 +18,8 @@ export saveopt,
        genorrun,
        dorun,
        netpi,
-       invnet
+       invnet,
+       train
 
 include("util.jl")          # Genral Utils
 include("callbacks.jl")     # Functions passed to optimizxation

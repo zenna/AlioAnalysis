@@ -1,3 +1,10 @@
+"Alio Analysis is divided into three kinds of things
+- General tools for data analyis and plotting
+- Tools for running optimization (while collecting data) using both
+  - function optimization with tensor flow
+  - pointwise optimization with nlopt
+- `runs` particular problems which test parituclar popreties of Arrows
+         often from AlioZoo"
 module AlioAnalysis
 
 using Arrows
@@ -19,19 +26,18 @@ export saveopt,
        dorun,
        netpi,
        invnet,
-       train
+       train,
        plus,
        optimizerun,
        genloss
 
-include("util.jl")          # Genral Utils
-include("callbacks.jl")     # Functions passed to optimizxation
-include("opts.jl")          # Standard options and option samplers
-include("search.jl")        # Methods
+include("util/misc.jl")             # Genral Utils
+include("analysis/space.jl")
 
-# Runs
-include("plots/space.jl")
-include("plots/warp.jl")
-include("query.jl")
-include("run.jl")
+include("transforms.jl")
+
+include("optim/callbacks.jl")
+include("optim/functionwise.jl")
+include("optim/pointwise.jl")
+include("optim/loss.jl")
 end

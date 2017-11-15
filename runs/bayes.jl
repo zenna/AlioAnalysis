@@ -10,16 +10,16 @@ import AlioAnalysis: plus, optimizerun
 # i Dont need a loss function for this example, just domain loss or id loss
 
 function bayesrun(opt::Dict{Symbol, Any})
-   fwdarr = opt[:fwdarr]
-   portnms = name.(⬧(fwdarr))
-   # Scalar examples
-   nmabv = NmAbValues(nm.name => AbValues(:size => Size([opt[:batch_size], 1])) for nm in portnms)
-   invarr = opt[:invarrgen](fwdarr, nmabv)
-   lalaloss(⬨s...) = abs(plus(⬨s...)) # minimize the norm
-   lossarr = AlioAnalysis.genloss(invarr, fwdarr,  lalaloss)
-   @show lossarr
-   optimizerun(lossarr,
-               xabv=nmabv)
+  fwdarr = opt[:fwdarr]
+  portnms = name.(⬧(fwdarr))
+  # Scalar examples
+  nmabv = NmAbValues(nm.name => AbValues(:size => Size([opt[:batch_size], 1])) for nm in portnms)
+  invarr = opt[:invarrgen](fwdarr, nmabv)
+  lalaloss(⬨s...) = abs(plus(⬨s...)) # minimize the norm
+  lossarr = AlioAnalysis.genloss(invarr, fwdarr,  lalaloss)
+  @show lossarr
+  optimizerun(lossarr,
+              xabv=nmabv)
 end
 
 "Generate data for initialization comparison"

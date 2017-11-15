@@ -1,5 +1,5 @@
 using Arrows
-using AlioAnalysis
+using AlioAnalysis: plus, optimizerun, genloss
 using AlioZoo
 
 # TODO: Batch size is specified in opt, so need to propagate that sumhow all
@@ -10,19 +10,21 @@ function rayrun(opt::Dict{Symbol, Any})
   batch_size = opt[:batch_size]
   width = opt[:width]
   height = opt[:height]
-  szs = Dict(:sradius => Size([batch_size, 1]),
-             :scenter => Size([batch_size, 3]),
+  szs = Dict(:sradius => Size([batch_size, 1, 1]),
+             :scenter => Size([batch_size, 1, 3]),
              :rdir => Size([batch_size, width * height, 3]),
              :rorig => Size([batch_size, width * height, 3]),
              :doesintersect => Size([batch_size, width * height, 1]),
              :t0 => Size([batch_size, width * height, 1]),
              :t1 => Size([batch_size, width * height, 1]))
-   nmabv = NmAbValues(nm => AbValues(:size => val) for (nm, val) in szs)
-   fwdarr = opt[:fwdarr]
-   # tabv = traceprop!(fwdarr, AlioZoo.namesz(fwdarr, szs))
-   invarr = opt[:invarrgen](fwdarr, nmabv)
-   lossarr = makeloss(invarr, fwdarr, opt[:loss], custϵ=exϵ)
-   optimizerun(lossarr, opt[:batch_size])
+  nmabv = NmAbValues(nm => AbValues(:size => val) for (nm, val) in szs)
+  fwdarr = opt[:fwdarr]
+  # tabv = traceprop!(fwdarr, AlioZoo.namesz(fwdarr, szs))
+  invarr = opt[:invarrgen](fwdarr, nmabv)
+  lalaloss(⬨s...) = abs(plus(⬨s...)) # minimize the norm
+  lossarr = genloss(invarr, fwdarr, lalaloss)
+  @show name.(get_ports(lossarr))
+  optimizerun(lossarr, xabv=nmabv)
 end
 
 "Generate data for initialization comparison"
@@ -39,8 +41,13 @@ function genopts()
                   :height => 10,
                   :loss => +)
   # Makekwrd non standard
-  AlioAnalysis.search(optspace; toenum=[:invarrgen], runnow=true, dorun=rayrun)
-end
+  train(optspace;
+         toenum=[:invarrgen],
+         runnow=true,
+         dorun=rayrun,
+         nsamples=2,
+         group="raytrace")
+  end
 
 function main()
   genorrun(genopts, stdrun)

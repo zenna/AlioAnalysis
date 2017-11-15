@@ -57,7 +57,13 @@ function optimizerun(carr::CompArrow,
   # Find the network and add `func`
 
   nnettarr = first(findnets(carr))
+  @assert is_wired_ok(carr)
+  # @show compile(carr)
+  println("before tp")
+  @show [nm.name for nm in name.(get_ports(carr))]
+  @show collect(keys(xabv))
   tabv = traceprop!(carr, xabv)
+  @assert false
   # @show values(tabv)
   insizes = [tabv[tval][:size] for tval in in_trace_values(nnettarr)]
   outsizes = [tabv[tval][:size] for tval in out_trace_values(nnettarr)]

@@ -104,37 +104,46 @@ function log_dir(;root=datadir(), jobid=randstring(5), group="nogroup", comment=
   joinpath(root, "runs", group, logdir)
 end
 
-function train(optspace;
-                toenum=Symbol[],
-                tosample=Symbol[],
-                nsamples=1,
-                runlocal=false,
-                runsbatch=false,
-                runnow=false,
-                dorun=stddorun,
-                group="nogroup")
+function train(optspace,
+               runfile;
+               toenum=Symbol[],
+               tosample=Symbol[],
+               nsamples=1,
+               runlocal=false,
+               runsbatch=false,
+               runnow=false,
+               dorun=stddorun,
+               group="nogroup")
   for (i, opt) in enumerate(prodsample(optspace, toenum, tosample, nsamples))
     jobid = randstring(5)
     logdir = log_dir(jobid=jobid, group=group)
     optpath = joinpath(logdir, "options.opt")
-    runpath = "/home/zenna/repos/Alio/AlioAnalysis.jl/src/run.sh"
-    thisfile = "/home/zenna/repos/Alio/AlioAnalysis.jl/runs/init.jl"
+    runpath = joinpath(Pkg.dir("AlioAnalysis", "src", "optim","run.sh"))
     mkpath(logdir)
+    opt[:group] = group
+    opt[:jobid] = jobid
+    opt[:logdir] = logdir
+    opt[:file] = runfile
     saveopt(optpath, opt)
     println("Saving options at: ", optpath)
     if runsbatch
-      cmd =`sbatch -J $jobid -o $jobid.out $runpath $thisfile $optpath`
+      cmd =`sbatch -J $jobid -o $jobid.out $runpath $runfile $optpath`
       println("Scheduling sbatch: ", cmd)
       run(cmd)
     end
     if runlocal
-      cmd = `julia $thisfile $optpath`
+      cmd = `julia $runfile $optpath`
       println("Running: ", cmd)
       run(cmd)
     end
     if runnow
       @show opt
-      dorun(opt)
+      try
+        dorun(opt)
+      catch y
+        println("Exception caught: $y")
+        println("continuing to next run")
+      end
     end
   end
 end

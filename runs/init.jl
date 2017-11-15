@@ -1,42 +1,40 @@
 using Arrows
-using AlioAnalysis: plus, optimizerun, genloss
 using AlioZoo
 using AlioAnalysis
+import AlioAnalysis: min_naive, recordrungen, min_domainϵ, everyn, savedfgen, printloss
 
-function rayrun(opt::Dict{Symbol, Any})
-  szs = Dict(:sradius => Size([batch_size, 1, 1]),
-             :scenter => Size([batch_size, 1, 3]),
-             :rdir => Size([batch_size, width * height, 3]),
-             :rorig => Size([batch_size, width * height, 3]),
-             :doesintersect => Size([batch_size, width * height, 1]),
-             :t0 => Size([batch_size, width * height, 1]),
-             :t1 => Size([batch_size, width * height, 1]))
-  nmabv = NmAbValues(nm => AbValues(:size => val) for (nm, val) in szs)
+
+function initrun(opt::Dict{Symbol, Any})
+  df, record = recordrungen()
+  cbs = [record,
+         everyn(savedfgen("std", joinpath(opt[:logdir], "rundata.jld2"), df), 3),
+         everyn(printloss, 5)]
+  # nmabv = NmAbValues(nm => AbValues(:size => val) for (nm, val) in szs)
   fwdarr = opt[:fwdarr]
-  invarr = opt[:invarrgen](fwdarr, nmabv)
-  lalaloss(⬨s...) = abs(plus(⬨s...)) # minimize the norm
-  lossarr = genloss(invarr, fwdarr, lalaloss)
-  tabv = traceprop!(lossarr, nmabv)
-  optimizerun(lossarr, xabv=nmabv)
+  @grab fwdarr
+  xvals = [rand() for i = 1:length(▸(fwdarr))] # FIXME: assumes scalar
+  yvals = fwdarr(xvals...)
+  opt[:minf](fwdarr, yvals...; callbacks=cbs)
 end
 
 "Generate data for initialization comparison"
 function genopts()
   # Vary over different arrows, varying the initial conditions
   optspace = Dict(:fwdarr => TestArrows.plain_arrows(),
-                  :invarrgen => [netpi, invnet],
-                  :loss => +)
+                  :minf => [min_naive, min_domainϵ])
+  println(@__FILE__)
   # Makekwrd non standard
-  train(optspace;
-         toenum=[:invarrgen],
-         runnow=true,
-         dorun=rayrun,
-         nsamples=2,
-         group="raytrace")
+  train(optspace,
+        @__FILE__;
+        toenum=[:fwdarr, :minf],
+        runnow=true,
+        dorun=initrun,
+        nsamples=10,
+        group="okletsgo2")
   end
 
 function main()
-  genorrun(genopts, stdrun)
+  genorrun(genopts, initrun)
 end
 
 # main()

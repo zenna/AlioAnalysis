@@ -15,13 +15,20 @@ function genloss(invarr::Arrow, fwd::Arrow, loss)
     fwd◃ = [fwd◃]
   end
 
-  # Sum the losses from each output
-  δ◃s = [fwd◃[i] + finv▹[i] for i = 1:length(fwd◃)]
-  δtot◃ = plus(δ◃s...)
+  # root mean square error, per port
+  δ◃s = [mean(δarr()(fwd◃[i], finv▹[i])) for i = 1:length(fwd◃)]
   foreach(add!(idϵ) ∘ link_to_parent!, δ◃s)
 
+  # sum rms over ports
+  δtot◃ = plus(δ◃s...)
+  add!(ϵ)
+  link_to_parent!(δtot◃)
+  foreach(link_to_parent!, ◃(finv))
+  @assert is_wired_ok(carr)
+  return carr
+
   # Any other loss
-  loss◃ = loss(finv◃...)
+  loss◃ = mean(loss(finv◃...))
   (add!(ϵ) ∘ link_to_parent!)(loss◃)
 
   # Total loss to minimize
@@ -37,7 +44,10 @@ end
 "nnet-enhanced parametric inverse of `fwd`"
 function netpi(fwd::Arrow, nmabv::NmAbValues = NmAbValues())
   sprtabv = SprtAbValues(⬨(fwd, nm) => abv for (nm, abv) in nmabv)
-  invcarr = aprx_invert(fwd, inv, sprtabv)
+  invcarr = invert(fwd, inv, sprtabv)
+  @grab invcarr
+  tabv = traceprop!(invcarr, nmabv)
+  @grab tabv
   pslarr = psl(invcarr)
 end
 
@@ -62,8 +72,8 @@ function optimizerun(carr::CompArrow,
   println("before tp")
   @show [nm.name for nm in name.(get_ports(carr))]
   @show collect(keys(xabv))
+  # export xabv
   tabv = traceprop!(carr, xabv)
-  @assert false
   # @show values(tabv)
   insizes = [tabv[tval][:size] for tval in in_trace_values(nnettarr)]
   outsizes = [tabv[tval][:size] for tval in out_trace_values(nnettarr)]

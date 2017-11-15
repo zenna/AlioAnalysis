@@ -1,6 +1,7 @@
 using Arrows
 using AlioAnalysis: plus, optimizerun, genloss
 using AlioZoo
+using AlioAnalysis
 
 # TODO: Batch size is specified in opt, so need to propagate that sumhow all
 # the way through to optimize run
@@ -19,10 +20,13 @@ function rayrun(opt::Dict{Symbol, Any})
              :t1 => Size([batch_size, width * height, 1]))
   nmabv = NmAbValues(nm => AbValues(:size => val) for (nm, val) in szs)
   fwdarr = opt[:fwdarr]
-  # tabv = traceprop!(fwdarr, AlioZoo.namesz(fwdarr, szs))
   invarr = opt[:invarrgen](fwdarr, nmabv)
   lalaloss(⬨s...) = abs(plus(⬨s...)) # minimize the norm
   lossarr = genloss(invarr, fwdarr, lalaloss)
+  @grab lossarr
+  @grab nmabv
+  @grab invarr
+  tabv = traceprop!(lossarr, nmabv)
   @show name.(get_ports(lossarr))
   optimizerun(lossarr, xabv=nmabv)
 end

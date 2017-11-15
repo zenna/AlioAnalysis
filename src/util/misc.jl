@@ -48,6 +48,17 @@ function prodsample(optspace,
   dicts
 end
 
+"Turn a key value into command line argument"
+function stringify(k, v)
+  if v == true
+    "--$k"
+  elseif v == false
+    ""
+  else
+    "--$k=$v"
+  end
+end
+
 "Save opt to file"
 function saveopt(poth, opt)
   open(poth, "w") do f
@@ -80,6 +91,8 @@ function datadir()
     homedir()
   end
 end
+
+dorun(optpath::String) = dorun(loadopt(optpath))
 
 "Log directory, e.g. ~/datadir/mnist/Oct14_02-43-22_my_comp/"
 function log_dir(;root=datadir(), jobid=randstring(5), group="nogroup", comment="")

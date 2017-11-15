@@ -1,75 +1,42 @@
 using Arrows
+using AlioAnalysis: plus, optimizerun, genloss
+using AlioZoo
 using AlioAnalysis
-import AlioAnalysis: saveopt, log_dir, prodsample, makeloss, savedata, genorrun, dorun, netpi, invnet
 
-# "nnet-enhanced parametric inverse of `fwd`"
-# function netpi(fwd::Arrow)
-#   invcarr = aprx_invert(fwd)
-#   pslarr = psl(invcarr)
-# end
-
-# "Construct a loss neural network which maps inverse domains of `fwd` "
-# function invnet(fwd::Arrow)
-#   unk = UnknownArrow(Symbol(:nnet_, name(fwd)),
-#                             length(◂(fwd)), length(▸(fwd)))
-# end
-
-
-# function optimizerun(carr::CompArrow, batch_size::Integer, template=mlp_template)
-#   ϵprt = ◂(carr, is(exϵ), 1)
-#   # Find the network and add `func`
-#   nnettarr = first(findnets(carr))
-#   insizes = [Size([batch_size, 1]) for i = 1:length(▸(deref(nnettarr)))]
-#   outsizes = [Size([batch_size, 1]) for i = 1:length(◂(deref(nnettarr)))]
-#   deref(nnettarr).func = args->mlp_template(args, insizes, outsizes)
-
-#   # Setup callbacks
-#   df, std_cb = savedata()
-#   callbacks = [std_cb]
-
-#   # Optimize
-#   optimize(carr,
-#            ϵprt,
-#            [Arrows.Sampler{Array}(()->rand(batch_size, 1)) for i = 1:length(▸(carr))],
-#            TFTarget;
-#            cont=data -> data.i < 400,
-#            callbacks=callbacks)
-#   [df]
-# end
-
-# "Execution the run"
-# function dorun(opt::Dict{Symbol, Any})
-#   @show fwdarr = opt[:fwdarr]
-#   invarr = opt[:invarr](fwdarr)
-#   lossarr = makeloss(invarr, fwdarr, opt[:loss], custϵ=exϵ)
-#   optimizerun(lossarr, opt[:batch_size])
-# end
-
-# doruin(optpath::String) = dorun(loadopt(optpath))
+function rayrun(opt::Dict{Symbol, Any})
+  szs = Dict(:sradius => Size([batch_size, 1, 1]),
+             :scenter => Size([batch_size, 1, 3]),
+             :rdir => Size([batch_size, width * height, 3]),
+             :rorig => Size([batch_size, width * height, 3]),
+             :doesintersect => Size([batch_size, width * height, 1]),
+             :t0 => Size([batch_size, width * height, 1]),
+             :t1 => Size([batch_size, width * height, 1]))
+  nmabv = NmAbValues(nm => AbValues(:size => val) for (nm, val) in szs)
+  fwdarr = opt[:fwdarr]
+  invarr = opt[:invarrgen](fwdarr, nmabv)
+  lalaloss(⬨s...) = abs(plus(⬨s...)) # minimize the norm
+  lossarr = genloss(invarr, fwdarr, lalaloss)
+  tabv = traceprop!(lossarr, nmabv)
+  optimizerun(lossarr, xabv=nmabv)
+end
 
 "Generate data for initialization comparison"
 function genopts()
-  optspace = Dict(:fwdarr => [TestArrows.xy_plus_x_arr(), TestArrows.abc_arr()],
-                  :batch_size => [16],
-                  :invarr => [netpi, invnet],
-                  :loss => +,
-                  :check => rand)
-  for (i, opt) in enumerate(prodsample(optspace, [:fwdarr, :batch_size, :invarr], [:check], 2))
-    jobid = randstring(5)
-    logdir = log_dir(jobid=jobid)
-    optpath = joinpath(logdir, "options.opt")
-    runpath = "/home/zenna/repos/Alio/AlioAnalysis.jl/src/run.sh"
-    thisfile = "/home/zenna/repos/Alio/AlioAnalysis.jl/runs/init.jl"
-    mkpath(logdir)
-    saveopt(optpath, opt)
-    cmd =`sbatch -J $jobid -o $jobid.out $runpath $thisfile $optpath`
-    println("Running: ", cmd)
-    run(cmd)
+  # Vary over different arrows, varying the initial conditions
+  optspace = Dict(:fwdarr => TestArrows.plain_arrows(),
+                  :invarrgen => [netpi, invnet],
+                  :loss => +)
+  # Makekwrd non standard
+  train(optspace;
+         toenum=[:invarrgen],
+         runnow=true,
+         dorun=rayrun,
+         nsamples=2,
+         group="raytrace")
   end
-end
 
 function main()
-  genorrun(genopts, dorun)
+  genorrun(genopts, stdrun)
 end
 
-main()
+# main()

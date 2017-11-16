@@ -1,7 +1,7 @@
 using Arrows
 using AlioZoo
 using AlioAnalysis
-import AlioAnalysis: min_naive, recordrungen, min_domainϵ, everyn, savedfgen, printloss
+import AlioAnalysis: min_naive, recordrungen, min_domainϵ, everyn, savedfgen, printloss, Opt
 
 
 function initrun(opt::Dict{Symbol, Any})
@@ -20,7 +20,7 @@ end
 "Generate data for initialization comparison"
 function genopts()
   # Vary over different arrows, varying the initial conditions
-  optspace = Dict(:fwdarr => TestArrows.plain_arrows(),
+  optspace = Opt(:fwdarr => TestArrows.plain_arrows(),
                   :minf => [min_naive, min_domainϵ])
   println(@__FILE__)
   # Makekwrd non standard
@@ -29,8 +29,8 @@ function genopts()
         toenum=[:fwdarr, :minf],
         runnow=true,
         dorun=initrun,
-        nsamples=10,
-        group="okletsgo2")
+        nsamples=500,
+        group="init4")
   end
 
 function main()

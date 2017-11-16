@@ -94,6 +94,8 @@ end
 
 dorun(optpath::String) = dorun(loadopt(optpath))
 
+pathfromgroup(group;root=datadir()) = joinpath(root, "runs", group)
+
 "Log directory, e.g. ~/datadir/mnist/Oct14_02-43-22_my_comp/"
 function log_dir(;root=datadir(), jobid=randstring(5), group="nogroup", comment="")
   logdir = join([jobid,

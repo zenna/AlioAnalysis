@@ -29,7 +29,8 @@ export saveopt,
        train,
        plus,
        optimizerun,
-       genloss
+       genloss,
+       Opt
 
 include("util/misc.jl")             # Genral Utils
 include("analysis/space.jl")

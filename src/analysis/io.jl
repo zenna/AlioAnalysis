@@ -4,7 +4,6 @@ function parsedata(file; optext = "opt", jldext = "jld2", datakey = "rundata")
   elseif extension(file) == jldext
     local rundata
     jldopen(file, "r") do file
-      @show keys(file)
       rundata = file[datakey]
     end
     return rundata

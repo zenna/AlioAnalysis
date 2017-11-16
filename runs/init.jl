@@ -7,7 +7,7 @@ import AlioAnalysis: min_naive, recordrungen, min_domainϵ, everyn, savedfgen, p
 function initrun(opt::Dict{Symbol, Any})
   df, record = recordrungen()
   cbs = [record,
-         everyn(savedfgen("std", joinpath(opt[:logdir], "rundata.jld2"), df), 3),
+         everyn(savedfgen("rundata", joinpath(opt[:logdir], "rundata.jld2"), df), 3),
          everyn(printloss, 5)]
   # nmabv = NmAbValues(nm => AbValues(:size => val) for (nm, val) in szs)
   fwdarr = opt[:fwdarr]

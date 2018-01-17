@@ -2,8 +2,10 @@
 function min_naive(fwd::Arrow,
                    yvals...;
                    callbacks=[],
-                   xabv::XAbValues = Arrows.TraceAbValues())
-  naive_loss, ϵid = Arrows.naive_loss(fwd, yvals...)
+                   opt=Dict(),
+                   xabv::XAbValues = Arrows.TraceAbValues(),
+                   pgfvals = [])
+  naive_loss, ϵid = Arrows.naive_loss(fwd, yvals)
   ϵprt = ◂(naive_loss, ϵid)
   init = rand(length(▸(naive_loss))) # FIXME: assumes scalar
   optimize(naive_loss,
@@ -14,17 +16,64 @@ function min_naive(fwd::Arrow,
 end
 
 "Construct inverse of `fwd` and minimize domain loss"
-function min_domainϵ(fwd::Arrow,
-                     outs...;
-                     callbacks=[])
-  dmloss, ϵid = domain_ovrl(fwd)
-  invarr = invert(fwd)
-  aprx_totalize!(invarr)
-  idloss = id_loss(fwd, invarr)
-  init = [outs..., rand(length(▸(dmloss, is(θp))))...]
-  optimize(dmloss,
-           ▸(dmloss, is(θp)),
-           ◂(dmloss, ϵid),
+function min_domϵ(fwd::Arrow,
+                 outs...;
+                 callbacks=[],
+                 opt=Dict(),
+                 pgfvals = [])
+   min_superϵ(fwd, :totdomϵ, outs...; callbacks=callbacks, opt=opt, pgfvals = pgfvals)
+end
+
+"Construct inverse of `fwd` and minimize domain loss"
+function min_idϵ(fwd::Arrow,
+                 outs...;
+                 callbacks=[],
+                 opt=Dict(),
+                 pgfvals = [])
+   min_superϵ(fwd, :idtotal, outs...; callbacks=callbacks, opt=opt, pgfvals=pgfvals)
+end
+
+"Construct inverse of `fwd` and minimize domain loss"
+function min_both(fwd::Arrow,
+                 outs...;
+                 callbacks=[],
+                 opt=Dict(),
+                 pgfvals = [])
+   min_superϵ(fwd, :both, outs...; callbacks=callbacks, opt=opt, pgfvals = pgfvals)
+end
+
+out_port_id(prt::Port) = findfirst(◂(prt.arrow), prt)
+
+"Construct inverse of `fwd` and minimize domain loss"
+function min_superϵ(fwd::Arrow,
+                    tag::Symbol,
+                    outs...;
+                    callbacks=[],
+                    opt=Dict(),
+                    pgfvals=pgfvals)
+  @show opt
+  res = Arrows.superloss(fwd)
+  invarr = res[:invcarr]
+  ϵprt = res[tag]
+  df = DataFrame(idtotal = Float64[], domtotal = Float64[], domall = Vector[])
+  function mycallback(data)
+    @show idtotal = data.output[out_port_id(res[:idtotal])]
+    domtotal = data.output[out_port_id(res[:totdomϵ])]
+    domids = [out_port_id(prt) for prt in ◂(invarr, is(idϵ)) if prt != res[:totdomϵ]]
+    domlosses = [data.output[domid] for domid in domids]
+    push!(df, [idtotal, domtotal, domlosses])
+  end
+  savedf = everyn(savedfgen("pilosses", joinpath(opt[:logdir], "pilosses.jld2"), df), 3)
+  # @show pgfvals
+  # @assert false
+  # initthetas = rand(length(▸(invarr, is(θp))))
+  initthetas = pgfvals[13:end]
+  @show length(initthetas)
+  @show length(initthetas)
+  init = [outs..., initthetas...]
+  optimize(invarr,
+           ▸(invarr, is(θp)),
+           ϵprt,
            init;
-           callbacks=[])
+           callbacks = vcat(callbacks, mycallback, savedf))
 end

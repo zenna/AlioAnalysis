@@ -1,3 +1,6 @@
+using ProgressMeter
+
+Options = Dict{Symbol, Any}
 # DataFrame Utils
 
 "Recursive join on `on` of many dataframes `dfs`"
@@ -115,8 +118,9 @@ function train(optspace,
                runsbatch=false,
                runnow=false,
                dorun=stddorun,
-               group="nogroup")
-  for (i, opt) in enumerate(prodsample(optspace, toenum, tosample, nsamples))
+               group="nogroup",
+               ignoreexceptions=false)
+  @showprogress 1 "Computing..." for (i, opt) in enumerate(prodsample(optspace, toenum, tosample, nsamples))
     jobid = randstring(5)
     logdir = log_dir(jobid=jobid, group=group)
     optpath = joinpath(logdir, "options.opt")
@@ -140,12 +144,15 @@ function train(optspace,
     end
     if runnow
       @show opt
-      try
-        dorun(opt)
-      catch y
-        println("Exception caught: $y")
-        println("continuing to next run")
-      end
+      dorun(opt)
+      # try
+      # catch y
+      #   println("Exception caught: $y")
+      #   if !ignoreexceptions
+      #     throw(y)
+      #   end
+      #   println("continuing to next run")
+      # end
     end
   end
 end

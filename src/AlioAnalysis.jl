@@ -30,7 +30,7 @@ export saveopt,
        plus,
        optimizerun,
        genloss,
-       Opt
+       Options
 
 include("util/misc.jl")             # Genral Utils
 include("analysis/space.jl")

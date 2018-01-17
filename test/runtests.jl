@@ -1,12 +1,21 @@
 using AlioAnalysis
-using Arrows
+using Base.Test
 
-import AlioAnalysis: prodsample, netpi, invnet
-function test_prodsample()
-  optspace = Dict(:fwdarr => [TestArrows.xy_plus_x_arr(), TestArrows.abc_arr()],
-                  :batch_size => [16, 32, 64],
-                  :invarr => [netpi, invnet],
-                  :loss => [+],
-                  :check => rand)
-  prodsample(optspace, [:batch_size, :invarr], [:check], 1)
+exclude = []
+test_dir = joinpath(Pkg.dir("AlioZoo"), "test", "tests")
+tests = setdiff(readdir(test_dir), exclude)
+
+print_with_color(:blue, "Running tests:\n")
+
+# Single thread
+srand(345679)
+res = map(tests) do t
+  println("Testing: ", t)
+  include(joinpath(test_dir, t))
+  nothing
 end
+
+# print method ambiguities
+println("Potentially stale exports: ")
+display(Base.Test.detect_ambiguities(AlioZoo))
+println()

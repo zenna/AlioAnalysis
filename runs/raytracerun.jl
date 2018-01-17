@@ -36,7 +36,7 @@ function genopts()
   batch_size = 32
   width = 16
   height = 16
-  rsarr = AlioZoo.rayintersect_arr_bcast()
+  rsarr = AlioZoo.rayintersect_arr()
   # rsarr, traceprop!(rsarr, AlioZoo.namesz(rsarr, szs))
   optspace = Dict(:fwdarr => rsarr,
                   :batch_size => 16,

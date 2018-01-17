@@ -1,10 +1,11 @@
-"Alio Analysis is divided into three kinds of things
+"""
+Alio Analysis is divided into three kinds of things
 - General tools for data analyis and plotting
 - Tools for running optimization (while collecting data) using both
   - function optimization with tensor flow
   - pointwise optimization with nlopt
-- `runs` particular problems which test parituclar popreties of Arrows
-         often from AlioZoo"
+- `runs` which test particular popreties of Arrows often from AlioZoo
+"""
 module AlioAnalysis
 
 using Arrows

@@ -2,7 +2,8 @@ using JLD2, FileIO
 
 "Record standard run metrics to dataframe"
 function recordrungen()
-  df = DataFrame(iteration = Int[],
+  df = DataFrame(runname = Symbol[],
+                 iteration = Int[],
                  loss = Float64[],
                  systime = Float64[],
                  input = Vector{Float64}[],

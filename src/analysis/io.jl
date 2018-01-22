@@ -49,7 +49,6 @@ function loadrundata(path::String)::RunData
   loaddict(path)
 end
 
-
 """
 Search through path and find `DataFrame`s and `RunData`s satisfying `filefilter`
 """

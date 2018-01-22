@@ -106,8 +106,8 @@ dorun(optpath::String) = dorun(loaddict(optpath))
 pathfromgroup(group;root=datadir()) = joinpath(root, "runs", group)
 
 "Log directory, e.g. ~/datadir/mnist/Oct14_02-43-22_my_comp/"
-function log_dir(;root=datadir(), jobid=randstring(5), group="nogroup", comment="")
-  logdir = join([jobid,
+function log_dir(;root=datadir(), runname=randstring(5), group="nogroup", comment="")
+  logdir = join([runname,
                  now(),
                  gethostname(),
                  comment],
@@ -133,21 +133,23 @@ function train(optspace, #FIXME: take in input, SRL and rename to more meaningfu
                runnow=false,
                dorun=stddorun,
                group="nogroup",
-               ignoreexceptions=false)
+               ignoreexceptions=false,
+               runname=()->randstring(5),
+               logdir=()->log_dir(runname=runname, group=group))
   @showprogress 1 "Computing..." for (i, opt) in enumerate(prodsample(optspace, toenum, tosample, nsamples))
-    jobid = randstring(5)
-    logdir = log_dir(jobid=jobid, group=group)
+    runname = runname()
+    logdir = logdir()
     optpath = joinpath(logdir, "options.opt")
     runpath = joinpath(Pkg.dir("AlioAnalysis", "src", "optim","run.sh"))
     mkpath(logdir)
     opt[:group] = group
-    opt[:jobid] = jobid
+    opt[:runname] = runname
     opt[:logdir] = logdir
     opt[:file] = runfile
     savedict(optpath, opt)
     println("Saving options at: ", optpath)
     if runsbatch
-      cmd =`sbatch -J $jobid -o $jobid.out $runpath $runfile $optpath`
+      cmd =`sbatch -J $runname -o $runname.out $runpath $runfile $optpath`
       println("Scheduling sbatch: ", cmd)
       run(cmd)
     end

@@ -57,10 +57,8 @@ export savedict,
        rundata,
        RunData
 
-RunData = Dict{Symbol, Any} #FIXME: Mvoe somewhere more appropriate
-
-
 include("util/misc.jl")             # Genral Utils
+include("rundata.jl")
 include("analysis/space.jl")
 include("analysis/io.jl")
 

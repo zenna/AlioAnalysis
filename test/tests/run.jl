@@ -4,14 +4,16 @@ using Spec
 import AlioAnalysis: min_naive, recordrungen, min_domainϵ, everyn, savedfgen,
                      printloss, Options, min_superϵ, min_domϵ, min_idϵ, min_both
 
-function test_analysis()
+function test_gen_data()
   with_pre() do
     arrs = [TestArrows.xy_plus_x_arr(), TestArrows.twoxy_plus_x_arr()]
 
     function initrun(opt::Dict{Symbol, Any})
       df, record = recordrungen(opt[:runname])
       cbs = [record,
-             everyn(savedfgen("rundata", joinpath(opt[:logdir], "rundata.jld2"), df), 3),
+             everyn(savedfgen(joinpath(opt[:logdir], "$(opt[:runname]).jld2"),
+                              df),
+                    3),
              everyn(printloss, 5)]
       fwdarr = opt[:fwdarr]
 
@@ -22,7 +24,6 @@ function test_analysis()
       yvals = fwdarr(xvals...)
 
       min_naive(fwdarr, yvals...; callbacks=cbs, opt=opt)
-      println("Finishing init")
     end
 
     "Generate data for initialization comparison"
@@ -43,10 +44,19 @@ function test_analysis()
             nsamples=1,
             group="test_analysis",
             ignoreexceptions=false,
-            logdir=()->"/tmp/aliotest")
+            logdir=()->"/tmp/aliotest/analysis")
     end
     genopts()
   end
 end
 
-# test_analysis()
+test_gen_data()
+
+function test_analysis()
+  with_pre() do
+    rds = walkrundata("/tmp/aliotest/analysis")
+    dfs = walkdfdata("/tmp/aliotest/analysis")
+  end
+end
+
+test_analysis()

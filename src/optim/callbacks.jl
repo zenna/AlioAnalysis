@@ -18,16 +18,8 @@ function recordrungen(runname::Symbol)
 end
 
 "Save dataframe to file"
-function savedfgen(name::String, path::String, dfdata::DataFrame)
-  function savedf(data)
-    jldopen(path, "w") do file
-      file[name] = dfdata
-    end
-    # println("Saving data to $path")
-    # @show dfdata
-    # save(path, Dict(name => dfdata))
-  end
-  savedf
+function savedfgen(path::String, df::DataFrame)
+  cbdata -> savedf(path, df)
 end
 
 "Higher order function that makes a callback run just once every n"

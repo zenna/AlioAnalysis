@@ -141,7 +141,7 @@ function train(optspace, #FIXME: take in input, SRL and rename to more meaningfu
   @showprogress 1 "Computing..." for (i, opt) in enumerate(prodsample(optspace, toenum, tosample, nsamples))
     runname_ = runname()
     logdir_ = logdir()
-    optpath = joinpath(logdir_, "options.opt")
+    optpath = joinpath(logdir_, "$runname_.rd")
     runpath = joinpath(Pkg.dir("AlioAnalysis", "src", "optim","run.sh"))
     mkpath(logdir_)
     opt[:group] = group

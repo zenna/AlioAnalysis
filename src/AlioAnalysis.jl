@@ -32,9 +32,10 @@ using Query
 using DataArrays
 using TSne
 using NLopt
+using Spec
 # using JLD2
 
-export saveopt,
+export savedict,
        log_dir,
        prodsample,
        makeloss,
@@ -47,7 +48,17 @@ export saveopt,
        plus,
        optimizerun,
        genloss,
-       Options
+       Options,
+       savedf,
+       loaddf,
+       loadrundata,
+       walkrundata,
+       walkdfdata,
+       rundata,
+       RunData
+
+RunData = Dict{Symbol, Any} #FIXME: Mvoe somewhere more appropriate
+
 
 include("util/misc.jl")             # Genral Utils
 include("analysis/space.jl")

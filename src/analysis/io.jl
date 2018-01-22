@@ -1,78 +1,91 @@
-function parsedata(file; optext = "opt", jldext = "jld2", datakey = "rundata")
-  if extension(file) == optext
-    return AlioAnalysis.loadopt(file)
-  elseif extension(file) == jldext
-    local rundata
-    jldopen(file, "r") do file
-      rundata = file[datakey]
-    end
-    return rundata
+"Extension of `file`"
+function extension(file)::String
+  # HACK: This is not robust
+  if !contains(file, ".")
+    ""
   else
-    @show extension(file)
-    @assert false file
+    basename(file)[search(basename(file), ".")[1]+1:end] #
   end
 end
 
-function parsedata2(file; optext = "opt", jldext = "jld2", datakey = "rundata")
-  if extension(file) == optext
-    return AlioAnalysis.loadopt(file)
-  elseif extension(file) == jldext
-    local rundata = Dict()
-    jldopen(file, "r") do file
-      # rundata = file[datakey]
-      for k in keys(file)
-        rundata[k] = file[k]
-      end
-    end
-    return rundata
-  else
-    @show extension(file)
-    @assert false file
+isrundatafile(file) = extension(file) == "rd"
+isdffile(file) = extension(file) == "jld2"
+
+"Save `df` as jld2 to `path`"
+function savedf(path::String, df::DataFrame)
+  @pre isdffile(path)
+  jldopen(path, "w") do file
+    file["dataframe"] = df
   end
 end
 
-"Get all rundata files within `dir`"
-function getrundata(dir)
-  optrundata = Dict()
-  for (root, dirs, files) in walkdir(dir)
-    for dir in dirs
-      println(joinpath(root, dir)) # path to directories
-    end
-    if all(ext -> any(file -> extension(file) == ext, files), ["opt", "jld2"])
-      opt = parsedata(joinpath(root, "options.opt"))
-      optrundata[opt] = []
-      for file in files
-        if extension(file) == "jld2"
-          data = parsedata(joinpath(root, file))
-          push!(optrundata[opt], data)
-        end
-      end
+"Load a single `DataFrame` to a JLD2 file at location `path`"
+function loaddf(path::String)::DataFrame
+  @pre ispath(path)
+  local rundata = Dict()
+  jldopen(path, "r") do file
+    for k in keys(file)
+      rundata[k] = file[k]
     end
   end
-  optrundata
+  return rundata["dataframe"]
 end
 
-"Get all rundata files within `dir`"
-function getrundata2(dir)
-  optrundata = Dict()
-  for (root, dirs, files) in walkdir(dir)
-    for dir in dirs
-      println(joinpath(root, dir)) # path to directories
-    end
-    if all(ext -> any(file -> extension(file) == ext, files), ["opt", "jld2"])
-      opt = parsedata(joinpath(root, "options.opt"))
-      optrundata[opt] = []
-      for file in files
-        if extension(file) == "jld2"
-          data = parsedata2(joinpath(root, file))
-          push!(optrundata[opt], data)
-        end
+"Save `Dict` to file"
+function savedict(path, opt)
+  open(path, "w") do f
+    serialize(f, opt)
+  end
+end
+
+"Load `Dict` from a file"
+function loaddict(path)
+  deserialize(open(path))
+end
+
+"Parse a rundata file"
+function loadrundata(path::String)::RunData
+  @pre isrundatafile(path)
+  loaddict(path)
+end
+
+
+"""
+Search through path and find `DataFrame`s and `RunData`s satisfying `filefilter`
+"""
+function walkload(searchpath::String, isgood, loaddata)
+  data = []
+  for (root, dirs, files) in walkdir(searchpath)
+    for file in files
+      extension(file)
+      if isgood(file)
+        push!(data, loaddata(joinpath(root, file)))
       end
     end
   end
-  optrundata
+  data
 end
 
+"Loads all rundata files in `searchpath`"
+walkrundata(searchpath)::Vector{RunData} = walkload(searchpath, isrundatafile, loadrundata)
 
-"Assumes only one dot"
-extension(file) = basename(file)[search(basename(file), ".")[1]+1:end]
+"Loads all dataframes in `searchpath`"
+walkdfdata(searchpath)::Vector{DataFrame} = walkload(searchpath, isdffile, loaddf)
+
+"Is `xs` a singleton (element of one value)?"
+issingleton(xs::Set) = length(xs) == 1
+
+"Is set corresponding `xs` (i.e. ignores duplicates) a singleton?"
+issingleton(xs::Vector) = length(unique(xs)) == 1
+
+"Runname of rundata that created `df`"
+function runname(df::DataFrame)::Symbol
+  @pre issingleton(df[:runname])
+  df[:runname][1]
+end
+
+"Rundata of `df` from set of `rds::RunData`"
+function rundata(df::DataFrame, rds::Vector{RunData})::RunData
+  @pre issingleton(filter(rd -> rd[:runname] == runname(df), rds))
+  first(filter(rd -> rd[:runname] == runname(df), rds))
+end

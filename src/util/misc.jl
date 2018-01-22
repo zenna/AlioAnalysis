@@ -62,18 +62,6 @@ function stringify(k, v)
   end
 end
 
-"Save opt to file"
-function saveopt(poth, opt)
-  open(poth, "w") do f
-    serialize(f, opt)
-  end
-end
-
-"Load optiosn from a file"
-function loadopt(path)
-  deserialize(open(path))
-end
-
 """
 Generate Opts or run opts based on cmdline
 
@@ -99,7 +87,7 @@ function genorrun(genopts, dorun)
   elseif ARGS[1] == "search"
     genopts()
   else
-    opt = loadopt(ARGS[1])
+    opt = loaddict(ARGS[1])
     dorun(opt)
   end
 end
@@ -113,7 +101,7 @@ function datadir()
   end
 end
 
-dorun(optpath::String) = dorun(loadopt(optpath))
+dorun(optpath::String) = dorun(loaddict(optpath))
 
 pathfromgroup(group;root=datadir()) = joinpath(root, "runs", group)
 
@@ -156,7 +144,7 @@ function train(optspace, #FIXME: take in input, SRL and rename to more meaningfu
     opt[:jobid] = jobid
     opt[:logdir] = logdir
     opt[:file] = runfile
-    saveopt(optpath, opt)
+    savedict(optpath, opt)
     println("Saving options at: ", optpath)
     if runsbatch
       cmd =`sbatch -J $jobid -o $jobid.out $runpath $runfile $optpath`
@@ -182,3 +170,17 @@ function train(optspace, #FIXME: take in input, SRL and rename to more meaningfu
     end
   end
 end
+
+## Misc Utils
+"""
+Constant function from anything to `y`
+
+```jldoctest
+julia> g = constfunction(4)
+(::#4) (generic function with 1 method)
+
+julia> g(3)
+4
+```
+"""
+constfunction(y) = (x...) -> y

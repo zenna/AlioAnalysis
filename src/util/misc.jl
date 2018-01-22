@@ -74,7 +74,25 @@ function loadopt(path)
   deserialize(open(path))
 end
 
-"Generate Opts or run opts based on cmdline"
+"""
+Generate Opts or run opts based on cmdline
+
+`genorun` is typically entry point to a run script.
+It has two different modes depending on command line arguments:
+
+1. `julia myrun.jl search`
+
+  Calls `genopts` which eventually calls `train`, which will execute `dorun`
+  on diffent options
+
+2. `julia myrun /path/to/options.opt`
+
+  Will call dorun(opt) where opt is loaded from file
+
+Together these allow both running scripts on local machine and scheduling them.
+Scheduling involves saving an options file to disk and calling sbatch with the
+same script but the options file as the command line argument
+"""
 function genorrun(genopts, dorun)
   if length(ARGS) != 1
     println("Wrong num arguments, should be 1 but was $(length(ARGS))")
@@ -109,7 +127,15 @@ function log_dir(;root=datadir(), jobid=randstring(5), group="nogroup", comment=
   joinpath(root, "runs", group, logdir)
 end
 
-function train(optspace,
+"""
+Run (or schedule to run) `dorun` with diffent optionfiles `opts` ∈ `optspace`
+
+Foreach `opt in optspace`, train can
+- run `dorun(opt)` locally non blocking in another process (if `runlocal==true`)
+- run `dorun(opt)` locally in this process (if `runnow==true`)
+- schedule a job on slurm with sbatch (if `runsbatch==true`)
+"""
+function train(optspace, #FIXME: take in input, SRL and rename to more meaningful
                runfile;
                toenum=Symbol[],
                tosample=Symbol[],

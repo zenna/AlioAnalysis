@@ -1,10 +1,26 @@
 """
-Alio Analysis is divided into three kinds of things
-- General tools for data analyis and plotting
-- Tools for running optimization (while collecting data) using both
-  - function optimization with tensor flow
-  - pointwise optimization with nlopt
-- `runs` which test particular popreties of Arrows often from AlioZoo
+AlioAnalysis has four pillars
+
+1. Arrows
+  An `Arrow` is a dataflow program from `Arrows.jl`
+
+2. Runs
+  Arrows are executed in a run.
+
+3. Datasets
+  Runs accumulate data which is stored in datasets
+
+4. Reports
+  Datasets are analyzed, and summarized into graphs, tables, statistics.
+  Reports are the desired output of using AlioAnalysis
+
+The following are typically many-many relationships:
+  (Arrow, Runs)
+  (Runs, Datasets)
+  (Datasets, Reports)
+
+For example there can be many arrows involved in one run, and each arrow may be
+inboled in many runs.
 """
 module AlioAnalysis
 

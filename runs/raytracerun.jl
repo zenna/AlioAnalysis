@@ -54,7 +54,7 @@ function genopts()
   end
 
 function main()
-  genorrun(genopts, stdrun)
+  genorrun(genopts, rayrun)
 end
 
 # main()

@@ -1,7 +1,8 @@
 # Run tests on set of arrows
 
 using Arrows
-import AlioZoo
+import Arrows: XAbValues
+import AlioZoo: all_benchmark_arrow_xabv
 
 """
 In words, what I want is a push button tool which will take
@@ -19,7 +20,7 @@ Then quantitative analysis
 """
 function suite(arr::Arrow, xabv::XAbValues)
   @assert is_valid(arr)
-  println("Testing ", arr)
+  println("\nTesting ", arr)
   println("xabv", xabv)
   invarr = invert(arr, inv, xabv)
   @assert is_valid(invarr)

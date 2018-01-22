@@ -7,6 +7,12 @@
 
 RunData = Dict{Symbol, Any}
 
+"Return list of pairs `(df::DataFrame, rd::RunData)` where `rundata(df) == dfs`"
+function zipdfrds(dfs::Vector{DataFrame}, rds::Vector{RunData})
+  dfrds = map(df->rundata(df, rds), dfs)
+  zip(dfs, dfrds)
+end
+
 "Was dataset `df` created from run `rd`"
 function isdatafromrun(df::DataFrame, rdrunname::Symbol)
   all((runname == rdrunname for runname in df[:runname]))

@@ -1,7 +1,7 @@
 using JLD2, FileIO
 
 "Record standard run metrics to dataframe"
-function recordrungen()
+function recordrungen(runname::Symbol)
   df = DataFrame(runname = Symbol[],
                  iteration = Int[],
                  loss = Float64[],
@@ -9,8 +9,9 @@ function recordrungen()
                  input = Vector{Float64}[],
                  output = Vector{Float64}[])
   i = 0
-  function recordrun(data)
-    push!(df, [i, data.loss, time(), [data.input...], [data.output...]])
+  function recordrun(cbdata)
+    row = [runname, i, cbdata.loss, time(), [cbdata.input...], [cbdata.output...]]
+    push!(df, row)
     i = i + 1
   end
   df, recordrun

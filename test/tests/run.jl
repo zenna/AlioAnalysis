@@ -9,7 +9,7 @@ function test_analysis()
     arrs = [TestArrows.xy_plus_x_arr(), TestArrows.twoxy_plus_x_arr()]
 
     function initrun(opt::Dict{Symbol, Any})
-      df, record = recordrungen()
+      df, record = recordrungen(opt[:runname])
       cbs = [record,
              everyn(savedfgen("rundata", joinpath(opt[:logdir], "rundata.jld2"), df), 3),
              everyn(printloss, 5)]

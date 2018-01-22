@@ -25,7 +25,7 @@ function suite(arr::Arrow, xabv::XAbValues)
   invarr = invert(arr, inv, xabv)
   @assert is_valid(invarr)
   pgfarr = pgf(arr, pgf, xabv)
-  @grab invarr
+  invarr
   constraints = Arrows.all_constraints(invarr, xabv)
 end
 

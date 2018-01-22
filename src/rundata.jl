@@ -23,8 +23,7 @@ function renamecolsbyrun(df::DataFrame, torename::Vector{Symbol}, runname::Symbo
 end
 
 """
-Join and rename multiple `DataFrame`s `dfs` from rundata
-
+Join and rename multiple `dfs::DataFrame` from run data
 - join on `on`
 """
 function combinedata(dfs::Vector{DataFrame},  # FIXME: Rename more meaningful
@@ -32,19 +31,20 @@ function combinedata(dfs::Vector{DataFrame},  # FIXME: Rename more meaningful
                      on::Symbol,
                      select::Vector{Symbol})
   @pre all(map(isdatafromrun, dfs, rds))
+  @pre all((all(haskey(df, colnm) for colnm in select) for df in dfs))
+
+  # Rename columns so e,g, loss -> run_1234_loss foreach df
   dfs = map(dfs, [rd[:runname] for rd in rds]) do df, runname
+    df = df[[on; select]]
     renamecolsbyrun(df, select, runname)
   end
   # TODO: Generalize to n dfs
   join(dfs[1], dfs[2], on = on, kind = :outer)
+  # [:loss_ada, :stats_time]
 end
 
-
-"LOL"
-function plotlinechart(df::DataFrame, )
-  plot(df[:iteration], [data[:iteration], data[:iteration]])
-end
-
-function summarize(df::DataFrame)
-  plot(iterations, losses)
+function plotlinechart(df::DataFrame, xnm::Symbol, ynms::Vector{Symbol})
+  aba = [df[ynm] for ynm in ynms]
+  @grab aba
+  plot(df[xnm], [df[ynm] for ynm in ynms])
 end

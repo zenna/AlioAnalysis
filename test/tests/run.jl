@@ -56,6 +56,8 @@ function test_analysis()
   with_pre() do
     rds = walkrundata("/tmp/aliotest/analysis")
     dfs = walkdfdata("/tmp/aliotest/analysis")
+    cdf = combinedata(dfs, rds, :iteration, [:loss, :systime])
+    plotlinechart(cdf, :iteration, names(cdf)[2:end])
   end
 end
 

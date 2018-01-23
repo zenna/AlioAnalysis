@@ -17,5 +17,5 @@ end
 
 # print method ambiguities
 println("Potentially stale exports: ")
-display(Base.Test.detect_ambiguities(AlioZoo))
+display(Base.Test.detect_ambiguities(AlioAnalysis))
 println()

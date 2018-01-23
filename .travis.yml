@@ -15,6 +15,8 @@ script:
   - julia -e 'Pkg.clone("https://github.com/zenna/Spec.jl")'
   - julia -e 'Pkg.clone("https://github.com/zenna/Arrows.jl")'
   - julia -e 'Pkg.build("Arrows)'
+  - Pkg.clone("NLopt")
+  - Pkg.build("NLopt")
   - julia -e 'Pkg.clone(pwd())'
   - julia -e 'Pkg.build("AlioAnalysis")'
   - julia -e 'Pkg.test("AlioAnalysis", coverage=true)'

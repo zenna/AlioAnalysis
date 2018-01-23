@@ -1,6 +1,8 @@
 Query
 DataFrames
+DataArrays
 NamedTuples
 Plots
 TSne
 JLD2
+TSne

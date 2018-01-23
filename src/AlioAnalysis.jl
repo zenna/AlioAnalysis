@@ -55,7 +55,9 @@ export savedict,
        walkrundata,
        walkdfdata,
        rundata,
-       RunData
+       RunData,
+       combinedata,
+       plotlinechart
 
 include("util/misc.jl")             # Genral Utils
 include("rundata.jl")

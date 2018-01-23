@@ -1,10 +1,3 @@
-# Actual concrete analyses
-# Requires fields for RunData
-# Helper filter data frames based on rundata conditions
-# Encaspulate runs into some kind of structure for consistency
-# Better combinators for Arrows
-
-
 RunData = Dict{Symbol, Any}
 
 "Return list of pairs `(df::DataFrame, rd::RunData)` where `rundata(df) == dfs`"
@@ -15,6 +8,7 @@ end
 
 "Was dataset `df` created from run `rd`"
 function isdatafromrun(df::DataFrame, rdrunname::Symbol)
+  @show names(df)
   all((runname == rdrunname for runname in df[:runname]))
 end
 
@@ -23,7 +17,7 @@ isdatafromrun(df::DataFrame, rd::RunData) = isdatafromrun(df, rd[:runname])
 
 "Rename each column `df` (if column name ∈ `torename`) to `colname_runname`"
 function renamecolsbyrun(df::DataFrame, torename::Vector{Symbol}, runname::Symbol)
-  @pre all(map(isdatafromrun, dfs, runname))
+  @pre isdatafromrun(df, runname)
   f(colname) = colname ∈ torename ? Symbol(colname, :_, runname) : colname
   rename(f, df)
 end
@@ -41,7 +35,9 @@ function combinedata(dfs::Vector{DataFrame},  # FIXME: Rename more meaningful
 
   # Rename columns so e,g, loss -> run_1234_loss foreach df
   dfs = map(dfs, [rd[:runname] for rd in rds]) do df, runname
-    df = df[[on; select]]
+    @show names(df), "a", on
+    df = df[[:runname; on; select]]
+    @show names(df), "b", on
     renamecolsbyrun(df, select, runname)
   end
   # TODO: Generalize to n dfs

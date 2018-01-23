@@ -57,7 +57,7 @@ function test_analysis()
     rds = walkrundata("/tmp/aliotest/analysis")
     dfs = walkdfdata("/tmp/aliotest/analysis")
     cdf = combinedata(dfs, rds, :iteration, [:loss, :systime])
-    plotlinechart(cdf, :iteration, names(cdf)[2:end])
+    # plotlinechart(cdf, :iteration, names(cdf)[2:end])
   end
 end
 

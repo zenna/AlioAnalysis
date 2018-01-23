@@ -2,7 +2,7 @@ using AlioAnalysis
 using Base.Test
 
 exclude = []
-test_dir = joinpath(Pkg.dir("AlioZoo"), "test", "tests")
+test_dir = joinpath(Pkg.dir("AlioAnalysis"), "test", "tests")
 tests = setdiff(readdir(test_dir), exclude)
 
 print_with_color(:blue, "Running tests:\n")

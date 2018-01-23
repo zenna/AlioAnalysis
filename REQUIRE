@@ -2,3 +2,5 @@ Query
 DataFrames
 NamedTuples
 Plots
+TSne
+JLD2

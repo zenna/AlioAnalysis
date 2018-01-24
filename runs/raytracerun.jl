@@ -1,5 +1,5 @@
 using Arrows
-using AlioAnalysis: plus, optimizerun, genloss
+using AlioAnalysis: plus, optimizenet, genloss
 using AlioZoo
 using AlioAnalysis
 
@@ -28,7 +28,7 @@ function rayrun(opt::Dict{Symbol, Any})
   @grab invarr
   tabv = traceprop!(lossarr, nmabv)
   @show name.(get_ports(lossarr))
-  optimizerun(lossarr, xabv=nmabv)
+  optimizenet(lossarr, xabv=nmabv)
 end
 
 "Generate data for initialization comparison"

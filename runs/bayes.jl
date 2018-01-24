@@ -3,7 +3,7 @@
 using Arrows
 using AlioAnalysis
 using AlioZoo
-import AlioAnalysis: plus, optimizerun
+import AlioAnalysis: plus, optimizenet
 
 # TODO: Batch size is specified in opt, so need to propagate that sumhow all
 # the way through to optimize run
@@ -18,7 +18,7 @@ function bayesrun(opt::Dict{Symbol, Any})
   lalaloss(⬨s...) = abs(plus(⬨s...)) # minimize the norm
   lossarr = AlioAnalysis.genloss(invarr, fwdarr,  lalaloss)
   @show lossarr
-  optimizerun(lossarr,
+  optimizenet(lossarr,
               xabv=nmabv)
 end
 

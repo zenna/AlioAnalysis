@@ -23,5 +23,5 @@ function stddorun(opt::Dict{Symbol, Any})
   @show fwdarr = opt[:fwdarr]
   invarr = opt[:invarr](fwdarr)
   lossarr = makeloss(invarr, fwdarr, opt[:loss], custϵ=exϵ)
-  optimizerun(lossarr, opt[:batch_size])
+  optimizenet(lossarr, opt[:batch_size])
 end

@@ -33,7 +33,11 @@ using DataArrays
 using TSne
 using NLopt
 using Spec
+
+import Arrows: Err
 # using JLD2
+
+import Base: gradient
 
 export savedict,
        log_dir,
@@ -57,17 +61,28 @@ export savedict,
        rundata,
        RunData,
        combinedata,
-       plotlinechart
+       plotlinechartl,
+
+       # Optimization
+       optimize,
+       verify_loss,
+       verify_optim,
+       domain_ovrl
 
 include("util/misc.jl")             # Genral Utils
 include("rundata.jl")
 include("analysis/space.jl")
 include("analysis/io.jl")
 
-include("transforms.jl")
+include("transform/transforms.jl")
+include("transform/supervised.jl")
 
 include("optim/callbacks.jl")
-include("optim/functionwise.jl")
-include("optim/pointwise.jl")
+include("optim/optimizenet.jl")
+include("optim/gradient.jl")
 include("optim/loss.jl")
+include("optim/optimize.jl")
+include("optim/pointwise.jl")
+include("optim/util.jl")
+
 end

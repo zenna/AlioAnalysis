@@ -1,6 +1,3 @@
-plus(x::SubPort) = x
-plus(xs::SubPort...) = +(xs...)
-
 "Nnet-expanded parametric inverse of `fwd`"
 function netpi(fwd::Arrow, nmabv::NmAbValues = NmAbValues())
   sprtabv = SprtAbValues(⬨(fwd, nm) => abv for (nm, abv) in nmabv)

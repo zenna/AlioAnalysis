@@ -33,8 +33,9 @@ using DataArrays
 using TSne
 using NLopt
 using Spec
+import IterTools: imap
 
-import Arrows: Err
+import Arrows: Err, add!, idϵ, domϵ, TraceSubArrow, trace_port, TraceValue, TraceAbValues
 # using JLD2
 
 import Base: gradient
@@ -76,6 +77,7 @@ include("analysis/io.jl")
 
 include("transform/transforms.jl")
 include("transform/supervised.jl")
+include("transform/pia.jl")
 
 include("optim/callbacks.jl")
 include("optim/optimizenet.jl")

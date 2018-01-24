@@ -2,16 +2,9 @@ using Arrows
 using Arrows.TestArrows
 using Spec
 import Arrows: splat, julia, Props, CompArrow, name, props, n▸, δ!
-using Iterators
-import AlioAnalysis: optimizenet
+import IterTools: imap
+import AlioAnalysis: sumsqrerr
 import TensorFlowTarget: mlp_template
-
-function sumsqrerr(fx::Vector, y::Vector)
-  @pre length(fx) == length(y)
-  sum([δ!(fx[i], y[i]) for i = 1:length(fx)])
-end
-
-sumsqrerr(fx, y) = δ!(fx, y)
 
 "Compute f(x) - y"
 function fx_y(x, y, f::Arrow)

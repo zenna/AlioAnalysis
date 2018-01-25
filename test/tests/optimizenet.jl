@@ -4,7 +4,7 @@ using Spec
 import Arrows: splat, julia, Props, CompArrow, name, props, n▸, δ!
 import IterTools: imap
 import AlioAnalysis: sumsqrerr
-import TensorFlowTarget: mlp_template
+import TensorFlowTarget: mlp_template, optimizenet
 
 "Compute f(x) - y"
 function fx_y(x, y, f::Arrow)
@@ -28,9 +28,9 @@ function test_optimizenet()
     fx_y([x, y], z, net) ⥅ loss
     @assert is_valid(lossarr)
     # Generate data
-    xit = Arrows.Sampler(randofsz)
-    yit = Arrows.Sampler(randofsz)
-    zit = imap(carrjl, Arrows.Sampler(()->(randofsz(), randofsz())))
+    xit = AlioAnalysis.Sampler(randofsz)
+    yit = AlioAnalysis.Sampler(randofsz)
+    zit = imap(carrjl, AlioAnalysis.Sampler(()->(randofsz(), randofsz())))
     optimizenet(lossarr, ◂(lossarr, 1);
                 xabv=NmAbValues(:x => AbValues(:size => Size(sz)),
                                 :y => AbValues(:size => Size(sz)),
@@ -39,17 +39,3 @@ function test_optimizenet()
                 cont = data -> data.i < 100)
   end
 end
-
-# test_optimizenet()
-function test_optimizenet_pgf()
-  pgfcarr = pgf(carr)
-  pgfjl = julia(pgfcarr)
-  yit = imap(carrjl, xit)
-  θit = imap(pgfjl, xit)
-end
-
-
-# What's painful here?
-# 1) passing around these xabv values
-# 2) no types to generate values from
-# 3)

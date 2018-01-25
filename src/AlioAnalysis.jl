@@ -43,8 +43,6 @@ import Base: gradient
 export savedict,
        log_dir,
        prodsample,
-       makeloss,
-       savedata,
        genorrun,
        dorun,
        netpi,
@@ -62,7 +60,7 @@ export savedict,
        rundata,
        RunData,
        combinedata,
-       plotlinechartl,
+       plotlinechart,
 
        # Optimization
        optimize,
@@ -71,6 +69,8 @@ export savedict,
        domain_ovrl
 
 include("util/misc.jl")             # Genral Utils
+include("util/generators.jl")       # Genral Utils
+
 include("rundata.jl")
 include("analysis/space.jl")
 include("analysis/io.jl")

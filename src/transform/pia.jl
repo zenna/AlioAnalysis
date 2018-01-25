@@ -11,7 +11,7 @@ end
 
 sumsqrerr(fx::SubPort, y::SubPort) = δ!(fx, y)
 sumsqrerr(fx::SubPort, y::Vector{SubPort}) = (@pre issingleton(y); δ!(fx, y[1]))
-sumsqrerr(fx::Vector{SubPort}, y::SubPort) = (@pre issingleton(x); δ!(fx[1], y))
+sumsqrerr(fx::Vector{SubPort}, y::SubPort) = (@pre issingleton(fx); δ!(fx[1], y))
 
 """
 Iterator of f(x) from `xgens` generator over x
@@ -60,7 +60,7 @@ function trainpianet(f::Arrow,
                      xabv,
                      optimtarget,
                      template; optimizeargs...)
-  @pre same(n◂(f), n▸(n), length(gens))
+  @pre same(n◂(f), n▸(n), length(ygens))
   lossarr = nlossarr(f, n)
   nnettarr = first(findnets(lossarr))
   tabv = TraceAbValues(TraceValue(trace_port(nnettarr, nm)) => abv

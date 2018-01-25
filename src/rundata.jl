@@ -1,10 +1,12 @@
 RunData = Dict{Symbol, Any}
 
 "Return list of pairs `(df::DataFrame, rd::RunData)` where `rundata(df) == dfs`"
-function zipdfrds(dfs::Vector{DataFrame}, rds::Vector{RunData})
+function zipdfrd(dfs::Vector{DataFrame}, rds::Vector{RunData})
   dfrds = map(df->rundata(df, rds), dfs)
   zip(dfs, dfrds)
 end
+
+splitzip(z) = collect(z)
 
 "Was dataset `df` created from run `rd`"
 function isdatafromrun(df::DataFrame, rdrunname::Symbol)
@@ -22,9 +24,12 @@ function renamecolsbyrun(df::DataFrame, torename::Vector{Symbol}, runname::Symbo
   rename(f, df)
 end
 
+
+
 """
 Join and rename multiple `dfs::DataFrame` from run data
 - join on `on`
+#FIXME: Does this function serve any purpose?
 """
 function combinedata(dfs::Vector{DataFrame},  # FIXME: Rename more meaningful
                      rds::Vector{RunData},
@@ -43,10 +48,4 @@ function combinedata(dfs::Vector{DataFrame},  # FIXME: Rename more meaningful
   # TODO: Generalize to n dfs
   join(dfs[1], dfs[2], on = on, kind = :outer)
   # [:loss_ada, :stats_time]
-end
-
-function plotlinechart(df::DataFrame, xnm::Symbol, ynms::Vector{Symbol})
-  aba = [df[ynm] for ynm in ynms]
-  @grab aba
-  plot(df[xnm], [df[ynm] for ynm in ynms])
 end

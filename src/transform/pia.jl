@@ -75,7 +75,7 @@ function trainpianet(f::Arrow,
 end
 
 "Preimage attack network to invert `f`"
-function pianet(f::CompArrow, xabv::XAbValues)
+function pianet(f::Arrow, xabv::XAbValues)
   net = UnknownArrow(pfx(f, :pia), out_port_names(f),
                                    in_port_names(f))
 end
@@ -85,3 +85,28 @@ port_names(arr) = [nm.name for nm in name.(ports(arr))]
 in_port_names(arr) = [nm.name for nm in name.(in_ports(arr))]
 out_port_names(arr) = [nm.name for nm in name.(out_ports(arr))]
 # test_pia()
+
+"Network from `Y -> \Theta`"
+function pslnet(invf::Arrow, xabv::XAbValues)
+  net = UnknownArrow(pfx(invf, :psl), in_port_names(invf),
+                                      in_port_names(f))
+end
+
+"Parameter Selecting Function: `psl: Y -> θ` from `invf: Y x θ -> X`"
+pslnet(invf::Arrow) = UnknownArrow(pfx(invf, :psl), ▸(invf, !is(θp)), ▸(invf, is(θp)))
+
+"Compose `psl`` with `invf` to yield reparamterized`"
+function reparamf(psl::Arrow, invf::Arrow)
+  invfrepram = CompArrow(:reparam, ▸(psl), ◂(invf))
+  θprts = psl(▸(invfrepram)...)
+  xprts = fsplat(invf, θprts)
+  foreach(⥅, xprts, ◂(invfrepram))
+  @post invfrepram is_valid(invfrepram)
+end
+
+"Construct reparamterized inverse of `f`"
+function piareparamnet(f::Arrow)
+  invf = Arrows.invert(f)
+  psl = pslnet(invf)
+  reparamf(psl, invf)
+end

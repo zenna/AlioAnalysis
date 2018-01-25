@@ -19,7 +19,11 @@ end
 """
 Optimization.
 # Arguments
-- `step!`: takes a gradient step and returns the loss
+- `step!(cb_data, callbacks)`: takes a gradient step and returns the loss
+   must also call populate cb_data with any additiona data and call callbacks
+   e.g..,
+   ```cb_data_ = merge(cb_data, @NT(loss = cur_loss))
+      foreach(cb->cb(cb_data_), callbacks)```
 - `writer`: Summary writer to log results to tensorboardX
 - `close_writer`: Close writer after finish?
 - `pre_callbacks`: functions/generators called before optimization
@@ -48,12 +52,11 @@ function optimize(step!::Function;
   foreach(cb->apl(cb, cb_data), pre_callbacks)
 
   while cont(cb_data)
+    cb_data = @NT(start_i=start_i, i=i, Stage=Run)
     if optimize
-      @show cur_loss = step!()
+      step!(cb_data, callbacks)
     end
-
-    cb_data = @NT(start_i=start_i, i=i, Stage=Run, loss=cur_loss)
-    foreach(cb->apl(cb, cb_data), callbacks)
+    # foreach(cb->apl(cb, cb_data), callbacks)
     i += 1
     # resetlog && reset_log()
   end
@@ -82,6 +85,9 @@ function lossjl(▸idx, init, ϵprt::Port, callbacks)
         grad[i] = grads[id]
       end
     end
+
+    # Loss function is calling callback because optimize doesn't have all data
+    # We want
     loss = output[ϵid]
     for cb in callbacks # Call all callbacks
       cb(@NT(input = input,

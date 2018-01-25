@@ -1,13 +1,11 @@
 using Arrows
-using TensorFlowTarget
-import TensorFlowTarget: mlp_template
+import TensorFlowTarget: mlp_template, TFTarget
 using AlioAnalysis
 import AlioAnalysis: port_names, pianet, fxgen, trainpianet, Sampler
 import Arrows: NmAbValues, Size
 
 arrs = [TestArrows.sin_arr(),
         TestArrows.xy_plus_x_arr(),
-        TestArrows.twoxy_plus_x_arr(),
         TestArrows.sqrt_check(),
         TestArrows.abc_arr(),
         TestArrows.ifelsesimple(),

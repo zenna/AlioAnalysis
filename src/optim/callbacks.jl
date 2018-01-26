@@ -10,7 +10,6 @@ function recordrungen(runname::Symbol)
                 #  output = Vector{Float64}[])
   i = 0
   function recordrun(cbdata)
-    @grab cbdata
     row = [runname, i, cbdata.loss, time()]
     # , [cbdata.input...], [cbdata.output...]]
     push!(df, row)

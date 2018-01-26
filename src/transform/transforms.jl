@@ -2,9 +2,7 @@
 function netpi(fwd::Arrow, nmabv::NmAbValues = NmAbValues())
   sprtabv = SprtAbValues(⬨(fwd, nm) => abv for (nm, abv) in nmabv)
   invcarr = invert(fwd, inv, sprtabv)
-  @grab invcarr
   tabv = traceprop!(invcarr, nmabv)
-  @grab tabv
   pslarr = psl(invcarr)
 end
 

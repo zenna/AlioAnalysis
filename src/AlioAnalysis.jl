@@ -78,6 +78,7 @@ include("analysis/io.jl")
 include("transform/transforms.jl")
 include("transform/supervised.jl")
 include("transform/pia.jl")
+include("transform/reparam.jl")
 
 include("optim/callbacks.jl")
 include("optim/optimizenet.jl")

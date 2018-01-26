@@ -27,16 +27,11 @@ function init_net!(carr::CompArrow,
                    template;
                    xabv::XAbValues = TraceAbValues())
   # Compute the input and output sizes
-  @grab carr
-  @grab xabv
-  @grab nnettarr
   tabv = traceprop!(carr, xabv)
   # @grab tabv
   insizes = [tabv[tval][:size] for tval in in_trace_values(nnettarr)]
   outsizes = [tabv[tval][:size] for tval in out_trace_values(nnettarr)]
   # Update the template of the network with
-  @grab insizes
-  @grab outsizes
   deref(nnettarr).func = args->template(args, insizes, outsizes)
 end
 

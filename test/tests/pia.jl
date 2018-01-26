@@ -21,34 +21,23 @@ foreach(arrs) do arr
   pianetarr = pianet(arr)
   xgens = [Sampler(()->rand(sz...)) for i = 1:n▸(arr)]
   ygens = fxgen(arr, xgens)
-  @grab xgens
-  @grab ygens
-
   trainpianet(arr, pianetarr, ygens, xabv, TFTarget, mlp_template;
               cont = data -> data.i < 1000) # Only do 100 iterations
 end
 
 arrs = [TestArrows.xy_plus_x_arr(),
         TestArrows.abc_arr()]
-
 foreach(arrs) do arr
   println("Testing Preimage attack on $(name(arr)) using Parametric Inverse")
+
   batch_size = 32
   sz = [batch_size, 1]
   xabv = NmAbValues(pnm => AbValues(:size => Size(sz)) for pnm in port_names(arr))
-  # F -> reparameterized inverse 
-  invf = invert(arr, inv, xabv)
-  psl = AlioAnalysis.pslnet(invf)
-  pianetarr = AlioAnalysis.reparamf(psl, invf)
-  lossarr = AlioAnalysis.nlossarr(arr, pianetarr)
-  net = first(AlioAnalysis.findnets(lossarr))
-  invfinlossar = first(Arrows.findtarrs(lossarr, invf))
-  tabv = Arrows.tabvfromxabv(invfinlossar, xabv)
+  # F -> reparameterized inverse
+  lossarr, tabv = AlioAnalysis.reparamloss(arr, xabv)
   # Generators
   xgens = [Sampler(()->rand(sz...)) for i = 1:n▸(arr)]
   ygens = fxgen(arr, xgens)
-  @grab xgens
-  @grab ygens
 
   # Start training
   AlioAnalysis.optimizenet(lossarr,

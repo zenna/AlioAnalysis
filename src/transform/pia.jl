@@ -60,11 +60,10 @@ function trainpianet(f::Arrow,
                      xabv,
                      optimtarget,
                      template; optimizeargs...)
-  @pre same(n◂(f), n▸(n), length(ygens))
+  @pre same([n◂(f), n▸(n)])
   lossarr = nlossarr(f, n)
   nnettarr = first(findnets(lossarr))
-  tabv = TraceAbValues(TraceValue(trace_port(nnettarr, nm)) => abv
-                                 for (nm, abv) in xabv)
+  tabv = Arrows.tabvfromxabv(nnettarr, xabv)
   optimizenet(lossarr,
              ◂(lossarr, is(ϵ))[1],
              optimtarget,
@@ -75,7 +74,7 @@ function trainpianet(f::Arrow,
 end
 
 "Preimage attack network to invert `f`"
-function pianet(f::Arrow, xabv::XAbValues)
+function pianet(f::Arrow)
   net = UnknownArrow(pfx(f, :pia), out_port_names(f),
                                    in_port_names(f))
 end
@@ -84,7 +83,6 @@ end
 port_names(arr) = [nm.name for nm in name.(ports(arr))]
 in_port_names(arr) = [nm.name for nm in name.(in_ports(arr))]
 out_port_names(arr) = [nm.name for nm in name.(out_ports(arr))]
-# test_pia()
 
 "Network from `Y -> \Theta`"
 function pslnet(invf::Arrow, xabv::XAbValues)
@@ -95,18 +93,31 @@ end
 "Parameter Selecting Function: `psl: Y -> θ` from `invf: Y x θ -> X`"
 pslnet(invf::Arrow) = UnknownArrow(pfx(invf, :psl), ▸(invf, !is(θp)), ▸(invf, is(θp)))
 
+# FIXME: Singleton Problem
+linkmany(x::Vector{SubPort}, y::Vector{SubPort}) = foreach(⥅, x, y)
+linkmany(x::SubPort, y::Vector{SubPort}) = (@pre issingleton(y); x ⥅ y[1])
+
 "Compose `psl`` with `invf` to yield reparamterized`"
 function reparamf(psl::Arrow, invf::Arrow)
-  invfrepram = CompArrow(:reparam, ▸(psl), ◂(invf))
-  θprts = psl(▸(invfrepram)...)
-  xprts = fsplat(invf, θprts)
-  foreach(⥅, xprts, ◂(invfrepram))
+  @pre Set(port_sym_name.(⬧(psl))) == Set(port_sym_name.(▸(invf)))
+  invfrepram = CompArrow(:reparam, ▸(psl), ◂(invf)) # Y -> X
+  pslθ◃s = psl(▹(invfrepram)...)
+  # Connect ports by nazme
+  to_invf = [pslθ◃s; ▹(invfrepram)] # Θ x Y: To link to inprts of invf
+  nm_to_invf = Dict{Symbol, SubPort}(port_sym_name(sprt) => sprt for sprt in to_invf)
+  xprts = invf(nm_to_invf)
+  linkmany(xprts, ◃(invfrepram))
+  @grab invfrepram
   @post invfrepram is_valid(invfrepram)
 end
 
 "Construct reparamterized inverse of `f`"
-function piareparamnet(f::Arrow)
-  invf = Arrows.invert(f)
+function piareparamnet(f::Arrow, xabv::XAbValues)
+  invf = Arrows.invert(f, inv, xabv)
+  tabv = Arrows.traceprop!(invf, xabv)
   psl = pslnet(invf)
   reparamf(psl, invf)
+  @grab invf
+  @grab tabv
+  @grab psl
 end

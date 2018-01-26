@@ -25,6 +25,9 @@ function plot_iteration_loss(dfs::Vector{DataFrame}, rds::Vector{RunData})
   plot(its, losses, xlabel="Iteration", ylabel="Loss")
 end
 
+function plot_pre_opt_hist(dfs::Vector{DataFrame}, rds::Vector{RunData})
+end
+  
 function data(path)
   rds = walkrundata(path)
   dfs = walkdfdata(path)

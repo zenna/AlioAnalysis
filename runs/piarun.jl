@@ -82,4 +82,6 @@ function genopts()
         ignoreexceptions=false)
 end
 
-genopts()
+function main()
+  genorrun(genopts, initrun)
+end

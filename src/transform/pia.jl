@@ -24,7 +24,11 @@ julia> fmap = fxgen(arr, [(rand() for i = 1:10), (rand() for i = 1:10)])
 function fxgen(f::Arrow, xgens)
   @pre n▸(f) == length(xgens)
   fjl = il(julia(f))
-  imap(fjl, xgens...)
+  if n◂(f) == 1
+    imap(tuple ∘ fjl, xgens...)
+  else 
+    imap(fjl, xgens...)
+  end
 end
 
 fsplat(f, arg::SubPort) = f(arg)

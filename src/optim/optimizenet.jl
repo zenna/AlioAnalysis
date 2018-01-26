@@ -35,6 +35,8 @@ function init_net!(carr::CompArrow,
   insizes = [tabv[tval][:size] for tval in in_trace_values(nnettarr)]
   outsizes = [tabv[tval][:size] for tval in out_trace_values(nnettarr)]
   # Update the template of the network with
+  @grab insizes
+  @grab outsizes
   deref(nnettarr).func = args->template(args, insizes, outsizes)
 end
 

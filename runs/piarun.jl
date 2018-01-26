@@ -85,3 +85,5 @@ end
 function main()
   genorrun(genopts, initrun)
 end
+
+main()

@@ -28,7 +28,8 @@ function piatrainnet(arr, opt)
   ygens = AlioAnalysis.fxgen(arr, xgens)
   AlioAnalysis.trainpianet(arr, pianetarr, ygens, xabv, TensorFlowTarget.TFTarget,
                            TensorFlowTarget.mlp_template;
-                           cont = data -> data.i < 1000) # Only do 100 iterations
+                           cont = data -> data.i < opt[:niters],
+                           logdir = opt[:logdir]) # Only do 100 iterations
 end
 
 "Preimage attack using reparamterized parametric inverse"
@@ -47,7 +48,8 @@ function piatrainrpi(arr, opt)
     TensorFlowTarget.mlp_template,
     ingens = ygens,
     xabv = tabv;
-    cont = data -> data.i < 100)
+    cont = data -> data.i < opt[:niters],
+    logdir = opt[:logdir])
 end
 
 function initrun(opt::Dict{Symbol, Any})
@@ -64,19 +66,20 @@ function genopts()
   # Vary over different arrows, varying the initial conditions
   optspace = Options(:fwdarr => arrs,
                      :trainfunc => [piatrainnet, piatrainnet],
-                     :batch_size => 32)
+                     :batch_size => 32,
+                     :niters => 1000)
   println(@__FILE__)
   # Makekwrd non standard
   train(optspace,
         @__FILE__;
         toenum=[:fwdarr, :trainfunc],
-        runsbatch=false,
-        runnow=true,
+        runsbatch=true,
+        runnow=false,
         runlocal=false,
         dorun=initrun,
-        nsamples=1,
-        group="test_analysis_pia_2",
+        nsamples=30,
+        group="test_hist_data_2",
         ignoreexceptions=false)
 end
 
-# genopts()
+genopts()

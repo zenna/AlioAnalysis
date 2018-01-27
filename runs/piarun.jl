@@ -20,7 +20,7 @@ arrs = [TestArrows.xy_plus_x_arr(),
         TestArrows.abc_arr()]
 
 "Preimage attack using unconstrained net"
-function piatrainnet(arr, opt)
+function piatrainnet(arr, opt; optimargs...)
   sz = [opt[:batch_size], 1]
   xabv = NmAbValues(pnm => AbValues(:size => Size(sz)) for pnm in port_names(arr))
   pianetarr = AlioAnalysis.pianet(arr)
@@ -28,12 +28,11 @@ function piatrainnet(arr, opt)
   ygens = AlioAnalysis.fxgen(arr, xgens)
   AlioAnalysis.trainpianet(arr, pianetarr, ygens, xabv, TensorFlowTarget.TFTarget,
                            TensorFlowTarget.mlp_template;
-                           cont = data -> data.i < opt[:niters],
-                           logdir = opt[:logdir]) # Only do 100 iterations
+                           optimargs...)
 end
 
 "Preimage attack using reparamterized parametric inverse"
-function piatrainrpi(arr, opt)
+function piatrainrpi(arr, opt; optimargs...)
   sz = [opt[:batch_size], 1]
   xabv = NmAbValues(pnm => AbValues(:size => Size(sz)) for pnm in port_names(arr))
   # F -> reparameterized inverse
@@ -48,8 +47,7 @@ function piatrainrpi(arr, opt)
     TensorFlowTarget.mlp_template,
     ingens = ygens,
     xabv = tabv;
-    cont = data -> data.i < opt[:niters],
-    logdir = opt[:logdir])
+    optimargs...)
 end
 
 function initrun(opt::Dict{Symbol, Any})
@@ -58,16 +56,21 @@ function initrun(opt::Dict{Symbol, Any})
          everyn(savedfgen(opt, df), 3),
          everyn(printloss, 5)]
   fwdarr = opt[:fwdarr]
-  opt[:trainfunc](fwdarr, opt)
+  opt[:arrname] = name(opt[:fwdarr])
+  lstring = AlioAnalysis.linearstring(opt, :niters, :batch_size, :runname, :arrname)
+  opt[:trainfunc][2](fwdarr, opt;
+                     callbacks = cbs,
+                     logdir = joinpath(opt[:logdir], lstring),
+                     cont = data -> data.i < opt[:niters])
 end
 
 "Generate data for initialization comparison"
 function genopts()
   # Vary over different arrows, varying the initial conditions
   optspace = Options(:fwdarr => arrs,
-                     :trainfunc => [piatrainnet, piatrainnet],
+                     :trainfunc => [(:net, piatrainnet), (:rpi, piatrainrpi)],
                      :batch_size => 32,
-                     :niters => 1000)
+                     :niters => 1)
   println(@__FILE__)
   # Makekwrd non standard
   train(optspace,
@@ -77,8 +80,8 @@ function genopts()
         runnow=false,
         runlocal=false,
         dorun=initrun,
-        nsamples=30,
-        group="test_hist_data_2",
+        nsamples=1,
+        group="badmanz",
         ignoreexceptions=false)
 end
 
@@ -86,4 +89,5 @@ function main()
   genorrun(genopts, initrun)
 end
 
+# genopts()
 main()

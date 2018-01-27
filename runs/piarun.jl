@@ -71,7 +71,7 @@ function genopts()
   optspace = Options(:fwdarr => arrs,
                      :trainfunc => [(:net, piatrainnet), (:rpi, piatrainrpi)],
                      :batch_size => 32,
-                     :niters => 1)
+                     :niters => 1000)
   println(@__FILE__)
   # Makekwrd non standard
   train(optspace,
@@ -81,7 +81,7 @@ function genopts()
         runnow=false,
         runlocal=false,
         dorun=initrun,
-        nsamples=1,
+        nsamples=100,
         group="badmanz",
         ignoreexceptions=false)
 end

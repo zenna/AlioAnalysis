@@ -75,10 +75,11 @@ include("rundata.jl")
 include("analysis/space.jl")
 include("analysis/io.jl")
 
-include("transform/transforms.jl")
+include("transform/common.jl")
 include("transform/supervised.jl")
 include("transform/pia.jl")
 include("transform/reparam.jl")
+include("transform/pgf.jl")
 
 include("optim/callbacks.jl")
 include("optim/optimizenet.jl")

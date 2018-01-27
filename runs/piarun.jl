@@ -57,7 +57,8 @@ function initrun(opt::Dict{Symbol, Any})
          everyn(printloss, 5)]
   fwdarr = opt[:fwdarr]
   opt[:arrname] = name(opt[:fwdarr])
-  lstring = AlioAnalysis.linearstring(opt, :niters, :batch_size, :runname, :arrname)
+  opt[:model] = opt[:trainfunc][1]
+  lstring = AlioAnalysis.linearstring(opt, :niters, :model, :batch_size, :runname, :arrname)
   opt[:trainfunc][2](fwdarr, opt;
                      callbacks = cbs,
                      logdir = joinpath(opt[:logdir], lstring),

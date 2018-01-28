@@ -29,7 +29,6 @@ using DataFrames
 using Plots
 using NamedTuples
 using Query
-using DataArrays
 using TSne
 using NLopt
 using Spec

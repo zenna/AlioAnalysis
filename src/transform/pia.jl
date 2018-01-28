@@ -11,7 +11,7 @@ function δfny_y(f::Arrow, n::Arrow, y::Vector)
 end
 
 "Arrow `lossarr: x, y -> δ(f(n(y)), y)`"
-function nlossarr(f::Arrow, n::Arrow; nm::Symbol=:lossarr)
+function δfny_y_arr(f::Arrow, n::Arrow; nm::Symbol=:lossarr)
   lossarr = CompArrow(nm, [Arrows.props.(▸(n)); [Arrows.Props(false, :δfny_y, Number)]])
   δfny_y(f, n, ▹(lossarr)) ⥅ ◃(lossarr, :δfny_y)
   add!(idϵ)(◃(lossarr, :δfny_y))
@@ -31,9 +31,10 @@ function trainpianet(f::Arrow,
                      ygens,
                      xabv,
                      optimtarget,
-                     template; optimizeargs...)
+                     template;
+                     optimizeargs...)
   @pre same([n◂(f), n▸(n)])
-  lossarr = nlossarr(f, n)
+  lossarr = δfny_y_arr(f, n)
   nnettarr = first(findnets(lossarr))
   tabv = Arrows.tabvfromxabv(nnettarr, xabv)
   optimizenet(lossarr,

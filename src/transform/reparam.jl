@@ -5,12 +5,6 @@ port_names(arr) = [nm.name for nm in name.(ports(arr))]
 in_port_names(arr) = [nm.name for nm in name.(in_ports(arr))]
 out_port_names(arr) = [nm.name for nm in name.(out_ports(arr))]
 
-"Network from `Y -> \Theta`"
-function pslnet(invf::Arrow, xabv::XAbValues)
-  net = UnknownArrow(pfx(invf, :psl), in_port_names(invf),
-                                      in_port_names(f))
-end
-
 "Parameter Selecting Function: `psl: Y -> θ` from `invf: Y x θ -> X`"
 pslnet(invf::Arrow) = UnknownArrow(pfx(invf, :psl), ▸(invf, !is(θp)), ▸(invf, is(θp)))
 
@@ -40,8 +34,8 @@ function reparamloss(arr::Arrow, xabv::XAbValues) # F -> reparameterized inverse
   pianetarr = reparamf(psl, invf)
 
   # Create the loss arrow
-  lossarr = nlossarr(arr, pianetarr)
-
+  lossarr = δfny_y_arr(arr, pianetarr)
+  
   # Find invf in the loss arrow and propagate with its abvalues to get abvalues for net 
   invfinlossar = first(Arrows.findtarrs(lossarr, invf))
   tabv = Arrows.tabvfromxabv(invfinlossar, xabv)

@@ -19,6 +19,13 @@ arrs = [TestArrows.sin_arr(),
 arrs = [TestArrows.xy_plus_x_arr(),
         TestArrows.abc_arr()]
 
+
+       
+arrs = [
+        # TestArrows.xy_plus_x_arr(),
+        # TestArrows.abc_arr(),
+        TestArrows.twoxy_plus_x_arr_bcast()]
+
 "Preimage attack using unconstrained net"
 function piatrainnet(arr, opt; optimargs...)
   sz = [opt[:batch_size], 1]
@@ -69,7 +76,7 @@ end
 function genopts()
   # Vary over different arrows, varying the initial conditions
   optspace = Options(:fwdarr => arrs,
-                     :trainfunc => [(:net, piatrainnet), (:rpi, piatrainrpi)],
+                     :trainfunc => [(:net, piatrainnet)],
                      :batch_size => 32,
                      :niters => 1000)
   println(@__FILE__)
@@ -77,11 +84,11 @@ function genopts()
   train(optspace,
         @__FILE__;
         toenum=[:fwdarr, :trainfunc],
-        runsbatch=true,
-        runnow=false,
+        runsbatch=false,
+        runnow=true,
         runlocal=false,
         dorun=initrun,
-        nsamples=100,
+        nsamples=1,
         group="badmanz",
         ignoreexceptions=false)
 end
@@ -90,5 +97,5 @@ function main()
   genorrun(genopts, initrun)
 end
 
-# genopts()
-main()
+genopts()
+# main()

@@ -48,6 +48,6 @@ end
 
 "Preimage attack network to invert `f`"
 function pianet(f::Arrow)
-  net = UnknownArrow(pfx(f, :pia), out_port_names(f),
-                                   in_port_names(f))
+  net = UnknownArrow(pfx(f, :pia), out_port_sym_names(f),
+                                   in_port_sym_names(f))
 end

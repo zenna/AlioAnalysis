@@ -1,7 +1,7 @@
 using Arrows
 import TensorFlowTarget: mlp_template, TFTarget
 using AlioAnalysis
-import AlioAnalysis: port_names, pianet, fxgen, trainpianet, Sampler, piareparamnet
+import AlioAnalysis: port_sym_names, pianet, fxgen, trainpianet, Sampler, piareparamnet
 import Arrows: NmAbValues, Size
 
 arrs = [TestArrows.sin_arr(),
@@ -17,7 +17,7 @@ foreach(arrs) do arr
   println("Testing Preimage attack on $(name(arr))")
   batch_size = 32
   sz = [batch_size, 1]
-  xabv = NmAbValues(pnm => AbValues(:size => Size(sz)) for pnm in port_names(arr))
+  xabv = NmAbValues(pnm => AbValues(:size => Size(sz)) for pnm in port_sym_names(arr))
   pianetarr = pianet(arr)
   xgens = [Sampler(()->rand(sz...)) for i = 1:n▸(arr)]
   ygens = fxgen(arr, xgens)
@@ -32,7 +32,7 @@ foreach(arrs) do arr
 
   batch_size = 32
   sz = [batch_size, 1]
-  xabv = NmAbValues(pnm => AbValues(:size => Size(sz)) for pnm in port_names(arr))
+  xabv = NmAbValues(pnm => AbValues(:size => Size(sz)) for pnm in port_sym_names(arr))
   # F -> reparameterized inverse
   lossarr, tabv = AlioAnalysis.reparamloss(arr, xabv)
   # Generators

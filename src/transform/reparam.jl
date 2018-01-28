@@ -1,9 +1,9 @@
 # Reparamterization of a neural network
 
 # FIXME: Move these elsewhere
-port_names(arr) = [nm.name for nm in name.(ports(arr))]
-in_port_names(arr) = [nm.name for nm in name.(in_ports(arr))]
-out_port_names(arr) = [nm.name for nm in name.(out_ports(arr))]
+port_sym_names(arr) = [nm.name for nm in name.(ports(arr))]
+in_port_sym_names(arr) = [nm.name for nm in name.(in_ports(arr))]
+out_port_sym_names(arr) = [nm.name for nm in name.(out_ports(arr))]
 
 "Parameter Selecting Function: `psl: Y -> θ` from `invf: Y x θ -> X`"
 pslnet(invf::Arrow) = UnknownArrow(pfx(invf, :psl), ▸(invf, !is(θp)), ▸(invf, is(θp)))

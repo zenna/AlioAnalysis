@@ -1,7 +1,8 @@
-Query
 DataFrames
-NamedTuples
 Plots
+NamedTuples
+Query
 TSne
 JLD2
 ReverseDiff
+IterTools

@@ -62,8 +62,6 @@ function piatrainnet(arr, opt; optimargs...)
   sz = [opt[:batch_size], 1]
   xabv = NmAbVals(pnm => AbVals(:size => Size(sz)) for pnm in port_sym_names(arr))
   pianetarr = AlioAnalysis.pianet(arr)
-  xgen = [Sampler(()->rand(sz...)) for i = 1:n▸(arr)]
-  ygen = fxgen(arr, xgen)
   ygen, ygentest = piageneralizetest(arr, opt)
   trainpianet(arr, pianetarr, ygen, xabv, TFTarget, mlp_template;
               testingen = ygentest, optimargs...)
@@ -72,13 +70,12 @@ end
 "Preimage attack using reparamterized parametric inverse"
 function piatrainrpi(arr, opt; optimargs...)
   sz = [opt[:batch_size], 1]
+  @grab arr
+  @grab sz
   xabv = NmAbVals(pnm => AbVals(:size => Size(sz)) for pnm in port_sym_names(arr))
   # F -> reparameterized inverse
   lossarr, tabv = AlioAnalysis.reparamloss(arr, xabv)
   # Generators
-  xgen = [AlioAnalysis.Sampler(()->rand(sz...)) for i = 1:n▸(arr)]
-  ygen = AlioAnalysis.fxgen(arr, xgen)
-
   ygen, ygentest = piageneralizetest(arr, opt)
 
   # Start training
@@ -113,8 +110,8 @@ function genopts()
   # Vary over different arrows, varying the initial conditions
   optspace = Options(:fwdarr => TestArrows.plain_arrows(),
                     #  :trainfunc => [(:net, piatrainnet)],
-                     :trainfunc => [(:netgeneralize, piatrainrpi),
-                                    (:netgeneralize, piatrainnet)],
+                     :trainfunc => [(:rpi, piatrainrpi),
+                                    (:net, piatrainnet)],
                     #  :trainfunc => [(:netgeneralize, piatrainnet)],
                     #  :traindatasize => Int.(round(logspace(0, 5, 4))),
                      :traindatasize => [1, 5, 40, 500],
@@ -124,13 +121,13 @@ function genopts()
   # Makekwrd non standard
   train(optspace,
         @__FILE__;
-        toenum=[:fwdarr, :trainfunc, :traindatasize],
-        runsbatch=true,
-        runnow=false,
+        toenum=[:fwdarr, :trainfunc, :traindatasize, :batch_size],
+        runsbatch=false,
+        runnow=true,
         runlocal=false,
         dorun=initrun,
         nsamples=3,
-        group="zabang",
+        group="zabish",
         ignoreexceptions=false)
 end
 
@@ -138,7 +135,7 @@ function main()
   genorrun(genopts, initrun)
 end
 
-# genopts()
+genopts()
 
 # How to do generalization test?
-main()
+# main()

@@ -44,7 +44,7 @@ foreach(arrs) do arr
     ◂(lossarr, is(ϵ))[1],
     TFTarget,
     mlp_template,
-    ingens = ygens,
+    ingen = ygens,
     xabv = tabv;
     cont = data -> data.i < 100)
 

@@ -35,7 +35,7 @@ function test_optimizenet()
                 xabv=NmAbVals(:x => AbVals(:size => Size(sz)),
                                 :y => AbVals(:size => Size(sz)),
                                 :z => AbVals(:size => Size(sz))),
-                ingens = [xit, yit, zit],
+                ingen = [xit, yit, zit],
                 cont = data -> data.i < 100)
   end
 end

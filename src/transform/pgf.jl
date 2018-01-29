@@ -24,10 +24,8 @@ end
 "Function that splits output of int `y` and `θ` and order otherwise presvered"
 function y_θ_split(pgfarr::Arrow)
   θprts, yprts = Arrows.partition(is(θp), ◂(pgfarr))
-  @grab θprts
-  @grab yprts
-  @grab θoids = out_port_id.(θprts)
-  @grab yoids = out_port_id.(yprts)
+  θoids = out_port_id.(θprts)
+  yoids = out_port_id.(yprts)
   function split(xs::Tuple)
     [xs[i] for i in yoids], [xs[i] for i in θoids]
   end
@@ -63,7 +61,7 @@ function trainpgfnet(lossarr::Arrow,
              ◂(lossarr, is(ϵ))[1],
              optimtarget,
              template,
-             ingens = y_θ_gen,
+             ingen = y_θ_gen,
              xabv = tabv;
              optimizeargs...)
 end

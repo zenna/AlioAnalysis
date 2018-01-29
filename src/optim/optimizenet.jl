@@ -1,22 +1,25 @@
-"""Optimize (a function containing) a neural network using TensorFlow
+"""
+Optimize (a function containing) a neural network using TensorFlow
 
 # Arguments
-- `carr`:
+- `carr`: computes loss output
 - `ϵprt`: Error port of arrow you want to minimize
-
+- `target`: Optimization method, e.g. `TFTarget` for tensorflow
+- `ingen`: Iterator of inputs of `carr`
+- `optimizeargs`: any argmenets to be passed to optimization
 """
 function optimizenet(carr::CompArrow,
                      ϵprt::AbstractPort,
                      target,
                      template;
                      xabv::XAbVals = TraceAbVals(),
-                     ingens = in_port_gen(carr, xabv),
+                     ingen = in_port_gen(carr, xabv),
                      optimizeargs...)
   @pre is_valid(carr)
   init_nets!(carr, template; xabv=xabv)  # Initialie inner neural networks
   optimize(carr,
            ϵprt,
-           ingens,
+           ingen,
            target;
            optimizeargs...)
 end

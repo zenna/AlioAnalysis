@@ -14,20 +14,20 @@ sumsqrerr(fx::SubPort, y::Vector{SubPort}) = (@pre issingleton(y); δ!(fx, y[1])
 sumsqrerr(fx::Vector{SubPort}, y::SubPort) = (@pre issingleton(fx); δ!(fx[1], y))
 
 """
-Iterator of f(x) from `xgens` generator over x
+Iterator of `f(x)` from `xgen` generator over `x`
 
 ```jldoctest
 julia> arr = Arrows.TestArrows.xy_plus_x_arr()
 julia> fmap = fxgen(arr, [(rand() for i = 1:10), (rand() for i = 1:10)])
 ```
 """
-function fxgen(f::Arrow, xgens)
-  @pre n▸(f) == length(xgens)
-  fjl = il(julia(f))
+function fxgen(f::Arrow, xgen)
+  # @pre n▸(f) == length(xgen)
+  fjl = il(Arrows.splat(julia(f)))
   if n◂(f) == 1
-    imap(tuple ∘ fjl, xgens...)
+    imap(tuple ∘ fjl, xgen)
   else 
-    imap(fjl, xgens...)
+    imap(fjl, xgen)
   end
 end
 

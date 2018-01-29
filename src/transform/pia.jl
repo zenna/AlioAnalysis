@@ -41,7 +41,7 @@ function trainpianet(f::Arrow,
              ◂(lossarr, is(ϵ))[1],
              optimtarget,
              template,
-             ingens = ygens,
+             ingen = ygens,
              xabv = tabv;
              optimizeargs...)
 end

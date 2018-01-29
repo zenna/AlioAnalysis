@@ -27,7 +27,7 @@ function reparamf(psl::Arrow, invf::Arrow)
 end
 
 "Invert `arr`, construct `psl` and `reparamterizes`"
-function reparamloss(arr::Arrow, xabv::XAbValues) # F -> reparameterized inverse 
+function reparamloss(arr::Arrow, xabv::XAbVals) # F -> reparameterized inverse 
   # Invert and compose with psl (parameter selecting function)
   invf = invert(arr, inv, xabv)
   psl = pslnet(invf)

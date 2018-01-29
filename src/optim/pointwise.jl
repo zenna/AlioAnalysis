@@ -3,7 +3,7 @@ function min_naive(fwd::Arrow,
                    yvals...;
                    callbacks=[],
                    opt=Dict(),
-                   xabv::XAbValues = Arrows.TraceAbValues(),
+                   xabv::XAbVals = Arrows.TraceAbVals(),
                    pgfvals = [])
   naive_loss, ϵid = Arrows.naive_loss(fwd, yvals)
   ϵprt = ◂(naive_loss, ϵid)

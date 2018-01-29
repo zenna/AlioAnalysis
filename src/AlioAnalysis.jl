@@ -34,7 +34,7 @@ using NLopt
 using Spec
 import IterTools: imap
 
-import Arrows: Err, add!, idϵ, domϵ, TraceSubArrow, trace_port, TraceValue, TraceAbValues
+import Arrows: Err, add!, idϵ, domϵ, TraceSubArrow, trace_port, TraceValue, TraceAbVals
 # using JLD2
 
 import Base: gradient

@@ -32,9 +32,9 @@ function test_optimizenet()
     yit = AlioAnalysis.Sampler(randofsz)
     zit = imap(carrjl, AlioAnalysis.Sampler(()->(randofsz(), randofsz())))
     optimizenet(lossarr, ◂(lossarr, 1);
-                xabv=NmAbValues(:x => AbValues(:size => Size(sz)),
-                                :y => AbValues(:size => Size(sz)),
-                                :z => AbValues(:size => Size(sz))),
+                xabv=NmAbVals(:x => AbVals(:size => Size(sz)),
+                                :y => AbVals(:size => Size(sz)),
+                                :z => AbVals(:size => Size(sz))),
                 ingens = [xit, yit, zit],
                 cont = data -> data.i < 100)
   end

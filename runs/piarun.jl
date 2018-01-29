@@ -4,7 +4,7 @@ using AlioAnalysis
 import AlioAnalysis: port_sym_names, pianet, fxgen, trainpianet, Sampler
 import AlioAnalysis: recordrungen, everyn, savedfgen, printloss
 
-import Arrows: NmAbValues, Size
+import Arrows: NmAbVals, Size
 using Spec
 
 arrs = [TestArrows.sin_arr(),
@@ -29,7 +29,7 @@ arrs = [
 "Preimage attack using unconstrained net"
 function piatrainnet(arr, opt; optimargs...)
   sz = [opt[:batch_size], 1]
-  xabv = NmAbValues(pnm => AbValues(:size => Size(sz)) for pnm in port_sym_names(arr))
+  xabv = NmAbVals(pnm => AbVals(:size => Size(sz)) for pnm in port_sym_names(arr))
   pianetarr = AlioAnalysis.pianet(arr)
   xgens = [AlioAnalysis.Sampler(()->rand(sz...)) for i = 1:n▸(arr)]
   ygens = AlioAnalysis.fxgen(arr, xgens)
@@ -41,7 +41,7 @@ end
 "Preimage attack using reparamterized parametric inverse"
 function piatrainrpi(arr, opt; optimargs...)
   sz = [opt[:batch_size], 1]
-  xabv = NmAbValues(pnm => AbValues(:size => Size(sz)) for pnm in port_sym_names(arr))
+  xabv = NmAbVals(pnm => AbVals(:size => Size(sz)) for pnm in port_sym_names(arr))
   # F -> reparameterized inverse
   lossarr, tabv = AlioAnalysis.reparamloss(arr, xabv)
   # Generators

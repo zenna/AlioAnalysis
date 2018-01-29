@@ -9,7 +9,7 @@ function optimizenet(carr::CompArrow,
                      ϵprt::AbstractPort,
                      target,
                      template;
-                     xabv::XAbValues = TraceAbValues(),
+                     xabv::XAbVals = TraceAbVals(),
                      ingens = in_port_gen(carr, xabv),
                      optimizeargs...)
   @pre is_valid(carr)
@@ -25,7 +25,7 @@ end
 function init_net!(carr::CompArrow,
                    nnettarr::TraceSubArrow,
                    template;
-                   xabv::XAbValues = TraceAbValues())
+                   xabv::XAbVals = TraceAbVals())
   # Compute the input and output sizes
   tabv = traceprop!(carr, xabv)
   # @grab tabv
@@ -38,7 +38,7 @@ end
 "Initialize a neural network with a composite arrow"
 function init_nets!(carr::CompArrow,
                     template;
-                    xabv::XAbValues = TraceAbValues())
+                    xabv::XAbVals = TraceAbVals())
   @pre issingleton(findnets(carr))
   # Find the network
   nnettarr = first(findnets(carr))   # Find the network and add `func`
@@ -46,7 +46,7 @@ function init_nets!(carr::CompArrow,
 end
 
 "Generate iterators for the inputs of an arrow"
-function in_port_gen(carr::CompArrow, xabv::XAbValues)
+function in_port_gen(carr::CompArrow, xabv::XAbVals)
   @show tabv = traceprop!(carr, xabv)
   insizes = [get(tabv[tval][:size]) for tval in in_trace_values(Arrows.TraceSubArrow(carr))]
   [Sampler{Array}(()->rand(carrinsizes[i]...)) for i = 1:length(▸(carr))]

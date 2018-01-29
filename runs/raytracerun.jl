@@ -18,7 +18,7 @@ function rayrun(opt::Dict{Symbol, Any})
              :doesintersect => Size([batch_size, width * height, 1]),
              :t0 => Size([batch_size, width * height, 1]),
              :t1 => Size([batch_size, width * height, 1]))
-  nmabv = NmAbValues(nm => AbValues(:size => val) for (nm, val) in szs)
+  nmabv = NmAbVals(nm => AbVals(:size => val) for (nm, val) in szs)
   fwdarr = opt[:fwdarr]
   invarr = opt[:invarrgen](fwdarr, nmabv)
   lalaloss(⬨s...) = abs(plus(⬨s...)) # minimize the norm

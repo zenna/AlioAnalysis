@@ -97,7 +97,7 @@ function initrun(opt::Dict{Symbol, Any})
   fwdarr = opt[:fwdarr]
   opt[:arrname] = name(opt[:fwdarr])
   opt[:model] = opt[:trainfunc][1]
-  lstring = linearstring(opt, :niters, :model, :batch_size, :runname, :arrname,
+  lstring = linearstring(opt, :runname, :niters, :model, :batch_size, :arrname,
                               :traindatasize)
   opt[:trainfunc][2](fwdarr, opt;
                      callbacks = cbs,
@@ -114,28 +114,29 @@ function genopts()
                                     (:net, piatrainnet)],
                     #  :trainfunc => [(:netgeneralize, piatrainnet)],
                     #  :traindatasize => Int.(round(logspace(0, 5, 4))),
-                     :traindatasize => [1, 5, 40, 500],
+                     :traindatasize => [1, 2, 5, 40, 500],
                      :batch_size => [1, 32],
-                     :niters => 10000)
+                     :niters => 1000)
+
   println(@__FILE__)
   # Makekwrd non standard
-  train(optspace,
-        @__FILE__;
-        toenum=[:fwdarr, :trainfunc, :traindatasize, :batch_size],
-        runsbatch=false,
-        runnow=true,
-        runlocal=false,
-        dorun=initrun,
-        nsamples=3,
-        group="zabish",
-        ignoreexceptions=false)
+  dispatchruns(optspace,
+               @__FILE__,
+               initrun;
+               toenum=[:fwdarr, :trainfunc, :traindatasize, :batch_size],
+               runsbatch=true,
+               runnow=false,
+               runlocal=false,
+               nsamples=1,
+               group="iurat",
+               ignoreexceptions=false)
 end
 
 function main()
   genorrun(genopts, initrun)
 end
 
-genopts()
+# genopts()
 
 # How to do generalization test?
-# main()
+main()

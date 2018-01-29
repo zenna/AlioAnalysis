@@ -32,6 +32,7 @@ using Query
 using TSne
 using NLopt
 using Spec
+using ProgressMeter
 import IterTools: imap
 
 import Arrows: Err, add!, idϵ, domϵ, TraceSubArrow, trace_port, TraceValue, TraceAbVals
@@ -46,7 +47,7 @@ export savedict,
        dorun,
        netpi,
        invnet,
-       train,
+       dispatchruns,
        plus,
        optimizenet,
        genloss,
@@ -68,7 +69,9 @@ export savedict,
        domain_ovrl
 
 include("util/misc.jl")             # Genral Utils
-include("util/generators.jl")       # Genral Utils
+include("util/dataframes.jl")       # DataFrames utils
+include("util/generators.jl")       # Iterators / Generators 
+include("util/dispatch.jl")         # Running jobs
 
 include("rundata.jl")
 include("analysis/space.jl")

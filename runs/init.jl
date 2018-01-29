@@ -43,7 +43,7 @@ function genopts()
                      :minf => [min_idϵ, min_domϵ, min_naive, min_both])
   println(@__FILE__)
   # Makekwrd non standard
-  train(optspace,
+  dispatchruns(optspace,
         @__FILE__;
         toenum=[:minf],
         runnow=true,

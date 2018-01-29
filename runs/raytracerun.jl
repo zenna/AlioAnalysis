@@ -45,7 +45,7 @@ function genopts()
                   :height => 10,
                   :loss => +)
   # Makekwrd non standard
-  train(optspace;
+  dispatchruns(optspace;
          toenum=[:invarrgen],
          runnow=true,
          dorun=rayrun,

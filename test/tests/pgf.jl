@@ -6,15 +6,12 @@ using Arrows
 import Arrows: pgf
 using AlioZoo
 
-"Cutie pie"
 batch_size = 32
 
 scalarnambv(f::Arrow) = # Assume scalar if no xambv given
   NmAbVals(pnm => AbVals(:size => Size([batch_size, 1])) for pnm in port_sym_names(f))
 
 function test_pgf_train(f::Arrow, xabv::XAbVals=scalarnambv(f))
-  @grab f
-  @grab xabv
   println("Testing arrow: ", f)
   pgff = pgf(f, pgf, xabv)
   if isempty(◂(pgff, is(θp)))
@@ -25,18 +22,13 @@ function test_pgf_train(f::Arrow, xabv::XAbVals=scalarnambv(f))
   # xgen = Sampler(()->[rand(get(xabv[nm][:size])...) for nm ∈ in_port_sym_names(f)])
   xgen = Sampler(()->[rand(0:255, get(xabv[nm][:size])...) for nm ∈ in_port_sym_names(f)])
   y_θ_gen = x_to_y_θ_gen(pgff, xgen)
-  @grab f
-  @grab xabv
-  @grab lossarr
-  @grab y_θ_gen
-  @grab xgen
   trainpgfnet(lossarr,
               n,
               y_θ_gen,
               xabv,
               TensorFlowTarget.TFTarget,
               TensorFlowTarget.mlp_template;
-              cont = data -> data.i < 10000)
+              cont = data -> data.i < 1000)
 end
 
 test_pgf_train(xabv::Tuple{Arrow, XAbVals}) = test_pgf_train(xabv[1], xabv[2])

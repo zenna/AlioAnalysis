@@ -1,11 +1,11 @@
 """
 Compute loss: |n(y) - x|
 """
-function δny_x(n::Arrow, y::Vector, x::Vector)
+function δny_x(n::Arrow, y::Vector, x::Vector, err=meansqrerr)
   @pre n▸(n) == length(y)
   @pre n◂(n) == length(x)
   xest = n(y...)
-  sumsqrerr(x, xest)
+  err(x, xest)
 end
 
 "Given `n : y -> x`, Arrow `lossarr: y, x -> δ(f(n(y)), y)`"

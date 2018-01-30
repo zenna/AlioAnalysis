@@ -46,8 +46,6 @@ function datadir()
   end
 end
 
-dorun(optpath::String) = dorun(loaddict(optpath))
-
 pathfromgroup(group;root=datadir()) = joinpath(root, "runs", group)
 
 randrunname(len=5)::Symbol = Symbol(:run_, randstring(len))

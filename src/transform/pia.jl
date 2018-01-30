@@ -4,10 +4,10 @@
 """
 Computes loss: ``|f(n(y)) - y|``
 """
-function δfny_y(f::Arrow, n::Arrow, y::Vector)
+function δfny_y(f::Arrow, n::Arrow, y::Vector, err=meansqrerr)
   xest = n(y...)
   yest = fsplat(f, xest)
-  sumsqrerr(yest, y)   #
+  err(yest, y)   #
 end
 
 "Arrow `lossarr: x, y -> δ(f(n(y)), y)`"

@@ -70,8 +70,6 @@ end
 "Preimage attack using reparamterized parametric inverse"
 function piatrainrpi(arr, opt; optimargs...)
   sz = [opt[:batch_size], 1]
-  @grab arr
-  @grab sz
   xabv = NmAbVals(pnm => AbVals(:size => Size(sz)) for pnm in port_sym_names(arr))
   # F -> reparameterized inverse
   lossarr, tabv = AlioAnalysis.reparamloss(arr, xabv)

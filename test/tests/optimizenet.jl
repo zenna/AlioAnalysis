@@ -3,13 +3,13 @@ using Arrows.TestArrows
 using Spec
 import Arrows: splat, julia, Props, CompArrow, name, props, n▸, δ!
 import IterTools: imap
-import AlioAnalysis: sumsqrerr
+import AlioAnalysis: sumsqrerr, meansqrrerr
 import TensorFlowTarget: mlp_template, optimizenet
 
 "Compute f(x) - y"
-function fx_y(x, y, f::Arrow)
+function fx_y(x, y, f::Arrow, err=meansqrrerr)
   yest = f(x...) # y estimates
-  sumsqrerr(yest, y)
+  err(yest, y)
 end
 
 "Test Optimization"

@@ -35,7 +35,7 @@ using Spec
 using ProgressMeter
 import IterTools: imap
 
-import Arrows: Err, add!, idϵ, domϵ, TraceSubArrow, trace_port, TraceValue, TraceAbVals, pfx
+import Arrows: Err, add!, idϵ, domϵ, TraceSubArrow, trace_port, TraceValue, TraceAbVals, pfx, reduce_sum, reduce_mean
 # using JLD2
 
 import Base: gradient

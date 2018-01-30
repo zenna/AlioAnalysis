@@ -9,10 +9,10 @@ function δny_x(n::Arrow, y::Vector, x::Vector, err=meansqrerr)
 end
 
 "Given `n : y -> x`, Arrow `lossarr: y, x -> δ(f(n(y)), y)`"
-function δny_x_arr(n::Arrow; nm::Symbol=:lossarr)
+function δny_x_arr(n::Arrow; nm::Symbol=:lossarr, err=err)
   lossarr = CompArrow(nm, port_sym_name.([▸(n); ◂(n)]), [:δny_x])
   y, x = Arrows.invvcat(▹(lossarr), n▸(n))
-  δny_x(n, y, x) ⥅ ◃(lossarr, :δny_x)
+  δny_x(n, y, x, err) ⥅ ◃(lossarr, :δny_x)
   add!(ϵ)(◃(lossarr, :δny_x))
   @post lossarr is_valid(lossarr)
 end

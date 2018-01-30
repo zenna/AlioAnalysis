@@ -18,7 +18,7 @@ function test_pgf_train(f::Arrow, xabv::XAbVals=scalarnambv(f))
     println("Exact inverse, no parameters to predict, skipping!")
     return
   end
-  lossarr, n, xabv = δpgfx_ny_arr(f, xabv)
+  lossarr, n, xabv = δpgfx_ny_arr(f, xabv, AlioAnalysis.meancrossentropy)
   # xgen = Sampler(()->[rand(get(xabv[nm][:size])...) for nm ∈ in_port_sym_names(f)])
   # xgen = Sampler(()->[rand(0:255, get(xabv[nm][:size])...) for nm ∈ in_port_sym_names(f)])
   xgen = Sampler(()->[rand(0:255, get(xabv[nm][:size])...) for nm ∈ in_port_sym_names(f)])

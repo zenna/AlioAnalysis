@@ -3,8 +3,9 @@
 l2norm(a::SubPort, b::SubPort) = sqrt(sqr(a - b)) # TODO: Make type specific
 
 "Cross entropy loss"
-function cross_entropy(fx, y)
-  reduce_mean(-reduce_sum(fx .* log(y), axis=[2]))
+function cross_entropy(fx::SubPort, y::SubPort)
+  ok = -reduce_sum(fx * log(y), axis=2)
+  reduce_mean(ok)
 end
 
 "`f(δ(x[i], y[i]))` or all `i`"
@@ -22,3 +23,6 @@ sumsqrerr(xs, ys) = accumerror(sum, l2norm, xs, ys)
 
 "Mean Square Error"
 meansqrerr(xs, ys) = accumerror(mean, l2norm, xs, ys)
+
+"Mean cross entropy"
+meancrossentropy(xs, ys) = accumerror(mean, cross_entropy, xs, ys)

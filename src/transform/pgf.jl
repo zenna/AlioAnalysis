@@ -1,14 +1,14 @@
 "Computes `δ(pgf(x), n(f(x))`"
 function δpgfx_ny_arr(f::Arrow, xabv::XAbVals)
-  invf = invert(f, inv, xabv)
+  bitlength = 256
+  # FIXME, where should this wrap go?
+  @grab invf = Arrows.wraponehot(invert(f, inv, xabv), bitlength) 
   @grab tabv = traceprop!(invf, xabv)
   nabv = Arrows.nmfromtabv(tabv, invf)
   n = pslnet(invf)
   lossarr = δny_x_arr(n; nm = :δpgfx_ny_arr)
   lossarr, n, nabv
 end
-
-
 # FIXME: DRY
 
 "Function that permutes outputof pgf s.t all `y` come before `θ` and order otherwise presvered"
@@ -35,7 +35,7 @@ end
 function x_to_y_θ_gen(pgfarr::Arrow, xgen)
   pgfjl = il(Arrows.splat(julia(pgfarr)))
   permute = y_θ_permute(pgfarr)
-  imap(permute ∘ pgfjl, xgen)
+  @grab ygen = imap(permute ∘ pgfjl, xgen)
 end
 
 """Xo 
@@ -56,7 +56,6 @@ function trainpgfnet(lossarr::Arrow,
   # @pre same([n◂(lossarr), n▸(n)]) # What should these be?
   nnettarr = first(Arrows.findtarrs(lossarr, n))
   tabv = Arrows.tabvfromxabv(nnettarr, xabv)
-
   optimizenet(lossarr,
              ◂(lossarr, is(ϵ))[1],
              optimtarget,

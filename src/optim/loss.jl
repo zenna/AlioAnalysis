@@ -8,17 +8,17 @@ function cross_entropy(fx, y)
 end
 
 "`f(δ(x[i], y[i]))` or all `i`"
-function fsqrerror(f, δ, xs::Vector, ys::Vector)
+function accumerror(f, δ, xs::Vector, ys::Vector)
   @pre length(xs) == length(ys)
-  f([δ(xs[i], ys[i]) for i = 1:length(xs)])
+  f(map(δ, xs, ys))
 end
 
-fsqrerror(f, δ, fx::SubPort, y::SubPort) = δ(fx, y)
-fsqrerror(f, δ, fx::SubPort, y::Vector{SubPort}) = (@pre issingleton(y); δ(fx, y[1]))
-fsqrerror(f, δ, fx::Vector{SubPort}, y::SubPort) = (@pre issingleton(fx); δ(fx[1], y))
+accumerror(f, δ, fx::SubPort, y::SubPort) = δ(fx, y)
+accumerror(f, δ, fx::SubPort, y::Vector{SubPort}) = (@pre issingleton(y); δ(fx, y[1]))
+accumerror(f, δ, fx::Vector{SubPort}, y::SubPort) = (@pre issingleton(fx); δ(fx[1], y))
 
 "Summed square error"
-sumsqrerr(xs, ys) = fsqrerror(sum, l2norm, xs, ys)
+sumsqrerr(xs, ys) = accumerror(sum, l2norm, xs, ys)
 
 "Mean Square Error"
-meansqrerr(xs, ys) = fsqrerror(mean, l2norm, xs, ys)
+meansqrerr(xs, ys) = accumerror(mean, l2norm, xs, ys)

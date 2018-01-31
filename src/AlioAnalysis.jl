@@ -26,10 +26,8 @@ module AlioAnalysis
 
 using Arrows
 using DataFrames
-using Plots
 using NamedTuples
 using Query
-using TSne
 using NLopt
 using Spec
 using ProgressMeter
@@ -70,7 +68,12 @@ export savedict,
        everyn,
        savedfgen,
        printloss,
-       linearstring
+       linearstring,
+       port_sym_names,
+       pianet,
+       fxgen,
+       trainpianet,
+       Sampler
 
 include("util/misc.jl")             # Genral Utils
 include("util/dataframes.jl")       # DataFrames utils

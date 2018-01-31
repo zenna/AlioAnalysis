@@ -2,7 +2,6 @@ DataFrames
 Plots
 NamedTuples
 Query
-TSne
 JLD2
 ReverseDiff
 IterTools

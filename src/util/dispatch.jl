@@ -92,14 +92,15 @@ function dispatchruns(optspace,
       run(cmd)
     end
     if runnow
-      try
-        dorun(opt)
-      catch y
-        println("Exception caught: $y")
-        if !ignoreexceptions
-          throw(y)
+      if ignoreexceptions
+        try
+          dorun(opt)
+        catch y
+          println("Exception caught: $y")
+          println("continuing to next run")
         end
-        println("continuing to next run")
+      else
+        dorun(opt)
       end
     end
   end

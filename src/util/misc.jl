@@ -2,6 +2,9 @@
 
 Options = Dict{Symbol, Any} # FIXME: reprecate in place of rundata
 
+sample(x) = rand(x)
+sample(f::Function) = f()
+
 "Enumerate product space of `toenum` sampling from `tosampale`"
 function prodsample(optspace,
                     toenum::Vector{Symbol},
@@ -14,7 +17,7 @@ function prodsample(optspace,
   for it in iter
     subdict1 = Dict(zip(keys(toenumprod), it))
     for i = 1:nsamples
-      subdict2 = Dict{Symbol, Any}(k => optspace[k]() for k in keys(tosample))
+      subdict2 = Dict{Symbol, Any}(k => sample(optspace[k]) for k in keys(tosample))
       subdict = merge(optspace, subdict1, subdict2)
       push!(dicts, subdict)
     end

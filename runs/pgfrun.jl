@@ -14,16 +14,14 @@ include("runcommon.jl")
 # Continue when no improvement
 
 "Preimage attack using reparamterized parametric inverse"
-function pgftrainrpi(bundle; optimargs...)
-  @grab bundle
+function pgftrainrpi(bundle; @req(opt), optimargs...)
   lossarr, n, xabv = AA.δpgfx_ny_arr(bundle.fwdarr, bundle.xabv, AA.meancrossentropy)
   y_θ_gen = AA.x_to_y_θ_gen(bundle.pgff, bundle.gen)
   AA.trainpgfnet(lossarr,
                  n,
                  y_θ_gen,
-                 xabv,
-                 TensorFlowTarget.TFTarget,
-                 TensorFlowTarget.conv_template;
+                 xabv;
+                 opt = opt,
                  optimargs...)
 end
 
@@ -32,14 +30,18 @@ function genopts()
   optspace = Options(:bundlegen => AZ.allbundlegens,
                      :trainfunc => [(:rpi, pgftrainrpi)],
                      :traindatasize => [1, 2, 5, 40, 500],
-                     :batch_size => [1, 32],
-                     :niters => 1000)
+                     :batch_size => [16, 32, 64],
+                     :target => TensorFlowTarget.TFTarget,
+                     :template => TensorFlowTarget.conv_template,
+                     :niters => 1000,
+                     :netparams => TensorFlowTarget.rand_convnet_hypers)
 
   println(@__FILE__)
   dispatchruns(optspace,
                @__FILE__,
                commoninitrun;
-               toenum=[:bundlegen, :trainfunc, :traindatasize, :batch_size],
+               toenum=[:bundlegen, :trainfunc, :traindatasize],
+               tosample=[:netparams, :batch_size],
                runsbatch=false,
                runnow=true,
                runlocal=false,

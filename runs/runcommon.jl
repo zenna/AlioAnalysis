@@ -5,9 +5,9 @@ function commoninitrun(opt::Dict{Symbol, Any})
   cbs = [record,
          everyn(savedfgen(opt, df), 3),
          everyn(printloss, 5)]
-
+         
   # Get the data from the bundle
-  @grab bundle = opt[:bundlegen](; opt...)
+  bundle = opt[:bundlegen](; opt...)
 
   # Setup opt with meta data
   opt[:arrname] = name(bundle.fwdarr)
@@ -19,6 +19,7 @@ function commoninitrun(opt::Dict{Symbol, Any})
                               :arrname,
                               :traindatasize)
   opt[:trainfunc][2](bundle;
+                     opt = opt,
                      callbacks = cbs,
                      logdir = joinpath(opt[:logdir], lstring),
                      cont = data -> data.i < opt[:niters])

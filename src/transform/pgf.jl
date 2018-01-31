@@ -49,18 +49,16 @@ Given forward arrow `f`
 function trainpgfnet(lossarr::Arrow,
                      n::Arrow,
                      y_θ_gen,
-                     xabv,
-                     optimtarget,
-                     template;
+                     xabv;
+                     @req(opt),
                      optimizeargs...)
   # @pre same([n◂(lossarr), n▸(n)]) # What should these be?
   nnettarr = first(Arrows.findtarrs(lossarr, n))
   tabv = Arrows.tabvfromxabv(nnettarr, xabv)
   optimizenet(lossarr,
              ◂(lossarr, is(ϵ))[1],
-             optimtarget,
-             template,
-             ingen = y_θ_gen,
-             xabv = tabv;
+             y_θ_gen;
+             xabv = tabv,
+             opt = opt,
              optimizeargs...)
 end

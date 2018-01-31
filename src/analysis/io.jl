@@ -40,16 +40,6 @@ end
 function loaddf(path::String)::DataFrame
   loaddict(path)
 end
-#   @pre ispath(path)
-#   local rundata = Dict()
-#   jldopen(path, "r") do file
-#     for k in keys(file)
-#       rundata[k] = file[k]
-#     end
-#   end
-#   return rundata["dataframe"]
-# end
-
 
 "Save `Dict` to file"
 function savedict(path, opt)

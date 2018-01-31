@@ -66,7 +66,11 @@ export savedict,
        optimize,
        verify_loss,
        verify_optim,
-       domain_ovrl
+       recordrungen,
+       everyn,
+       savedfgen,
+       printloss,
+       linearstring
 
 include("util/misc.jl")             # Genral Utils
 include("util/dataframes.jl")       # DataFrames utils

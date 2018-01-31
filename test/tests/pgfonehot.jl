@@ -6,7 +6,7 @@ using Arrows
 import Arrows: pgf
 using AlioZoo
 
-batch_size = 2
+batch_size = 16
 bitlength = 256
 scalarnambv(f::Arrow) = # Assume scalar if no xambv given
   NmAbVals(pnm => AbVals(:size => Size([batch_size, 1, bitlength])) for pnm in port_sym_names(f))

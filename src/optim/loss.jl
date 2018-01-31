@@ -2,9 +2,9 @@
 "`δ(a, b)`"
 l2norm(a::SubPort, b::SubPort) = sqrt(sqr(a - b)) # TODO: Make type specific
 
-"Cross entropy loss"
+"Cross entropy loss, `y` is the prediction"
 function cross_entropy(fx::SubPort, y::SubPort)
-  ok = -reduce_sum(fx * log(y), axis=2)
+  ok = -reduce_sum(fx * log(y), axis=2, keepdims=true)
   reduce_mean(ok)
 end
 

@@ -20,6 +20,7 @@ function optimizenet(carr::CompArrow,
            ϵprt,
            ingen,
            opt[:target];
+           opt=opt,
            optimizeargs...)
 end
 

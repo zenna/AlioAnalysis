@@ -1,9 +1,10 @@
 "Computes `δ(pgf(x), n(f(x))`"
-function δpgfx_ny_arr(f::Arrow, xabv::XAbVals, err = meansqrerr)
-  bitlength = 256
-  # FIXME, where should this wrap go?
-  @grab invf = Arrows.wraponehot(invert(f, inv, xabv), bitlength) 
-  @grab tabv = traceprop!(invf, xabv)
+function δpgfx_ny_arr(f::Arrow, invf::Arrow, pgff::Arrow,  xabv::XAbVals, err = meansqrerr)
+  @grab f
+  @grab invf
+  @grab pgf
+  @grab xabv
+  tabv = traceprop!(invf, xabv)
   nabv = Arrows.nmfromtabv(tabv, invf)
   n = pslnet(invf)
   lossarr = δny_x_arr(n; nm = :δpgfx_ny_arr, err = err)

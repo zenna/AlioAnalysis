@@ -5,6 +5,8 @@ import TensorFlowTarget: mlp_template, TFTarget
 using AlioAnalysis
 const AA = AlioAnalysis
 using Spec
+using TensorFlow
+const tf = TensorFlow
 
 include("runcommon.jl")
 
@@ -13,9 +15,19 @@ include("runcommon.jl")
 # call to dispatch runs should take cmdline args
 # Continue when no improvement
 
+function train_hypers()
+  @show lr = rand([0.1, 0.01, 0.0001])
+  lr = 0.1
+  optimizer = tf.train.AdamOptimizer(lr)
+end
+
 "Preimage attack using reparamterized parametric inverse"
 function pgftrainrpi(bundle; @req(opt), optimargs...)
-  lossarr, n, xabv = AA.δpgfx_ny_arr(bundle.fwdarr, bundle.xabv, AA.meancrossentropy)
+  lossarr, n, xabv = AA.δpgfx_ny_arr(bundle.fwdarr,
+                                     bundle.invf,
+                                     bundle.pgff,
+                                     bundle.xabv,
+                                     AA.meancrossentropy)
   y_θ_gen = AA.x_to_y_θ_gen(bundle.pgff, bundle.gen)
   AA.trainpgfnet(lossarr,
                  n,
@@ -30,10 +42,11 @@ function genopts()
   optspace = Options(:bundlegen => AZ.allbundlegens,
                      :trainfunc => [(:rpi, pgftrainrpi)],
                      :traindatasize => [1, 2, 5, 40, 500],
-                     :batch_size => [16, 32, 64],
+                     :batch_size => [32, 64],
                      :target => TensorFlowTarget.TFTarget,
                      :template => TensorFlowTarget.conv_template,
-                     :niters => 1000,
+                     :niters => 100000,
+                     :hyper_gen => train_hypers,
                      :netparams => TensorFlowTarget.rand_convnet_hypers)
 
   println(@__FILE__)

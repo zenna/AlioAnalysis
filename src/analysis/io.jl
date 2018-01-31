@@ -11,25 +11,45 @@ end
 isrundatafile(file) = extension(file) == "rd"
 isdffile(file) = extension(file) == "jld2"
 
-"Save `df` as jld2 to `path`"
+# "Save `df` as jld2 to `path`"
+# function savedf(path::String, df::DataFrame)
+#   @pre isdffile(path)
+#   jldopen(path, "w") do file
+#     file["dataframe"] = df
+#   end
+# end
+
+# "Load a single `DataFrame` to a JLD2 file at location `path`"
+# function loaddf(path::String)::DataFrame
+#   @pre ispath(path)
+#   local rundata = Dict()
+#   jldopen(path, "r") do file
+#     for k in keys(file)
+#       rundata[k] = file[k]
+#     end
+#   end
+#   return rundata["dataframe"]
+# end
+
 function savedf(path::String, df::DataFrame)
   @pre isdffile(path)
-  jldopen(path, "w") do file
-    file["dataframe"] = df
-  end
+  savedict(path, df)
 end
 
 "Load a single `DataFrame` to a JLD2 file at location `path`"
 function loaddf(path::String)::DataFrame
-  @pre ispath(path)
-  local rundata = Dict()
-  jldopen(path, "r") do file
-    for k in keys(file)
-      rundata[k] = file[k]
-    end
-  end
-  return rundata["dataframe"]
+  loaddict(path)
 end
+#   @pre ispath(path)
+#   local rundata = Dict()
+#   jldopen(path, "r") do file
+#     for k in keys(file)
+#       rundata[k] = file[k]
+#     end
+#   end
+#   return rundata["dataframe"]
+# end
+
 
 "Save `Dict` to file"
 function savedict(path, opt)

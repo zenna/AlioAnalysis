@@ -1,7 +1,8 @@
 # Reparamterization of a neural network
 
 "Parameter Selecting Function: `psl: Y -> θ` from `invf: Y x θ -> X`"
-pslnet(invf::Arrow) = UnknownArrow(pfx(invf, :psl), ▸(invf, !is(θp)), ▸(invf, is(θp)))
+pslnet(invf::Arrow) =
+  UnknownArrow(pfx(invf, :psl), ▸(invf, !is(θp)), ▸(invf, is(θp)))
 
 # FIXME: Singleton Problem
 linkmany(x::Vector{SubPort}, y::Vector{SubPort}) = foreach(⥅, x, y)

@@ -42,8 +42,6 @@ function min_both(fwd::Arrow,
    min_superϵ(fwd, :both, outs...; callbacks=callbacks, opt=opt, pgfvals = pgfvals)
 end
 
-out_port_id(prt::Port) = findfirst(◂(prt.arrow), prt)
-
 "Construct inverse of `fwd` and minimize domain loss"
 function min_superϵ(fwd::Arrow,
                     tag::Symbol,
@@ -57,9 +55,9 @@ function min_superϵ(fwd::Arrow,
   ϵprt = res[tag]
   df = DataFrame(idtotal = Float64[], domtotal = Float64[], domall = Vector[])
   function mycallback(data)
-    @show idtotal = data.output[out_port_id(res[:idtotal])]
-    domtotal = data.output[out_port_id(res[:totdomϵ])]
-    domids = [out_port_id(prt) for prt in ◂(invarr, is(idϵ)) if prt != res[:totdomϵ]]
+    @show idtotal = data.output[pos_in_out_ports(res[:idtotal])]
+    domtotal = data.output[pos_in_out_ports(res[:totdomϵ])]
+    domids = [pos_in_out_ports(prt) for prt in ◂(invarr, is(idϵ)) if prt != res[:totdomϵ]]
     domlosses = [data.output[domid] for domid in domids]
     push!(df, [idtotal, domtotal, domlosses])
   end

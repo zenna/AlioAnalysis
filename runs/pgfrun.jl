@@ -23,12 +23,11 @@ end
 
 "Preimage attack using reparamterized parametric inverse"
 function pgftrainrpi(bundle; @req(opt), optimargs...)
-  lossarr, n, xabv = AA.δpgfx_ny_arr(bundle.fwdarr,
-                                     bundle.invf,
-                                     bundle.pgff,
-                                     bundle.xabv,
-                                     AA.meancrossentropy)
-  y_θ_gen = AA.x_to_y_θ_gen(bundle.pgff, bundle.gen)
+  @grab n = AA.pslnet(bundle.invf)
+  @grab bundle
+  xabv = :pslxabv ∈ keys(bundle) ? bundle.pslxabv : AA.pslxabvfrominv(invf, bundle.xabv)
+  lossarr = AA.δpgfx_ny_arr(n, AA.meancrossentropy)
+  @grab y_θ_gen = AA.x_to_y_θ_gen(bundle.pgff, bundle.invf, bundle.gen)
   AA.trainpgfnet(lossarr,
                  n,
                  y_θ_gen,

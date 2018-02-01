@@ -28,7 +28,6 @@ using Arrows
 using DataFrames
 using NamedTuples
 using Query
-using NLopt
 using Spec
 using ProgressMeter
 import IterTools: imap
@@ -95,6 +94,7 @@ include("optim/optimizenet.jl")
 include("optim/gradient.jl")
 include("optim/loss.jl")
 include("optim/optimize.jl")
+include("optim/nlopt.jl")
 include("optim/pointwise.jl")
 include("optim/util.jl")
 

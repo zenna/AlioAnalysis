@@ -16,8 +16,7 @@ include("runcommon.jl")
 # Continue when no improvement
 
 function train_hypers()
-  @show lr = rand([0.1, 0.01, 0.0001])
-  lr = 0.1
+  @show lr = rand([0.0001, 0.00001])
   optimizer = tf.train.AdamOptimizer(lr)
 end
 
@@ -26,7 +25,7 @@ function pgftrainrpi(bundle; @req(opt), optimargs...)
   @grab n = AA.pslnet(bundle.invf)
   @grab bundle
   xabv = :pslxabv ∈ keys(bundle) ? bundle.pslxabv : AA.pslxabvfrominv(invf, bundle.xabv)
-  lossarr = AA.δpgfx_ny_arr(n, AA.meancrossentropy)
+  lossarr = AA.δpgfx_ny_arr(n, opt[:loss])
   @grab y_θ_gen = AA.x_to_y_θ_gen(bundle.pgff, bundle.invf, bundle.gen)
   AA.trainpgfnet(lossarr,
                  n,
@@ -41,6 +40,8 @@ function genopts()
   optspace = Options(:bundlegen => AZ.allbundlegens,
                      :trainfunc => [(:rpi, pgftrainrpi)],
                      :traindatasize => [1, 2, 5, 40, 500],
+                    #  :loss => [AA.meancrossentropy],
+                     :loss => AA.meansqrerr,
                      :batch_size => [32, 64],
                      :target => TensorFlowTarget.TFTarget,
                      :template => TensorFlowTarget.conv_template,
